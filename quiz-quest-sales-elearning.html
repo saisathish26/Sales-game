@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Quiz Quest – Sales Mastery eLearning</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f59e0b;--gold2:#fbbf24;--gold3:#fcd34d;
+  --deep:#0d0b1e;--mid:#1e1b3a;--surface:#252241;--card:#1a1735;
+  --green:#10b981;--red:#ef4444;--blue:#3b82f6;
+  --text:#e8e4f0;--muted:#9490b0;--dim:#4b4870;
+  --radius:14px;
+}
+html,body{min-height:100%;background:var(--deep);color:var(--text);font-family:'Lora',Georgia,serif;scroll-behavior:smooth}
+button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
+
+/* ── LAYOUT ── */
+#app{min-height:100vh;position:relative}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── STARS ── */
+#starsBg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 3s infinite alternate}
+@keyframes twinkle{from{opacity:.1}to{opacity:.7}}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes slideRight{from{width:0}to{width:100%}}
+
+/* ── HUD ── */
+#hud{
+  display:none;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(13,11,30,.85);
+  border-bottom:1px solid rgba(245,158,11,.2);
+  backdrop-filter:blur(12px);position:sticky;top:0;z-index:30;flex-shrink:0;
+}
+.hud-lives{display:flex;gap:4px;font-size:18px}
+.hud-center{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.hud-xp{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);font-weight:700}
+
+/* ══════════════════════════════════════
+   WELCOME SCREEN
+══════════════════════════════════════ */
+#screen-welcome{
+  background:radial-gradient(ellipse at 50% 20%,#2a1f5e 0%,#0d0b1e 60%);
+  align-items:center;justify-content:center;text-align:center;padding:32px 20px;
+}
+.welcome-wrap{position:relative;z-index:1;animation:fadeUp .9s ease both;max-width:520px}
+.welcome-crest{font-size:68px;filter:drop-shadow(0 0 24px var(--gold));margin-bottom:12px;animation:pulse 3s infinite}
+.welcome-title{
+  font-family:'Cinzel',serif;font-size:clamp(28px,7vw,54px);font-weight:900;
+  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:4px;text-transform:uppercase;line-height:1.05;
+}
+.welcome-tagline{font-family:'Cinzel',serif;font-size:12px;letter-spacing:5px;color:#b8b0d8;text-transform:uppercase;margin:10px 0 28px;opacity:.8}
+.welcome-story{
+  background:rgba(255,255,255,.04);border:1px solid rgba(245,158,11,.22);
+  border-radius:var(--radius);padding:22px 26px;margin-bottom:28px;
+  color:#ccc8e8;font-size:15px;line-height:1.85;font-style:italic;
+}
+.welcome-features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px}
+.feature-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:14px;text-align:left;
+}
+.feature-icon{font-size:22px;margin-bottom:6px}
+.feature-title{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);letter-spacing:1px;margin-bottom:3px}
+.feature-desc{color:var(--muted);font-size:12px;line-height:1.5}
+.btn-start{
+  background:linear-gradient(135deg,var(--gold),#d97706);border:none;
+  border-radius:50px;padding:16px 52px;color:#1a1206;
+  font-family:'Cinzel',serif;font-weight:700;font-size:16px;letter-spacing:2px;
+  box-shadow:0 0 32px rgba(245,158,11,.45);transition:all .2s;
+}
+.btn-start:hover{transform:scale(1.05);box-shadow:0 0 44px rgba(245,158,11,.65)}
+
+/* ══════════════════════════════════════
+   MAP SCREEN
+══════════════════════════════════════ */
+#screen-map{background:linear-gradient(170deg,var(--deep) 0%,#130f2e 100%);align-items:stretch}
+.map-header{padding:20px 24px;text-align:center;border-bottom:1px solid rgba(245,158,11,.15);flex-shrink:0}
+.map-lbl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:.8}
+.map-h1{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:#fff;margin:4px 0}
+.map-xp-bar{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--gold2);font-family:'Cinzel',serif;font-size:13px;margin-top:6px}
+.map-body{flex:1;overflow-y:auto;padding:24px 16px 48px}
+.map-worlds{display:flex;flex-direction:column;align-items:center;gap:0;max-width:440px;margin:0 auto}
+.world-node{width:100%;position:relative}
+.world-card{
+  width:100%;border:2px solid rgba(255,255,255,.08);border-radius:16px;
+  padding:16px 20px;display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,.03);transition:all .3s;text-align:left;
+  font-family:inherit;color:var(--text);
+}
+.world-card.unlocked{cursor:pointer}
+.world-card.unlocked:hover{transform:translateX(4px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.world-card.locked{opacity:.35;cursor:not-allowed}
+.world-card.completed{box-shadow:inset 0 0 0 1px rgba(245,158,11,.3)}
+.world-emoji{font-size:32px;flex-shrink:0}
+.world-meta{flex:1;min-width:0}
+.world-num{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+.world-name{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3}
+.world-stars{display:flex;gap:2px;font-size:14px}
+.world-badge{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:20px;flex-shrink:0}
+.connector{width:3px;height:20px;margin:3px auto;border-radius:2px;background:rgba(255,255,255,.08);transition:background .3s}
+.connector.active{background:var(--gold)}
+.map-badges-section{max-width:440px;margin:24px auto 0;padding:0 4px}
+.map-badges-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px;opacity:.8}
+.badges-flex{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.badge-pill{
+  background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);
+  border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;
+}
+.badge-pill-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold2)}
+
+/* ══════════════════════════════════════
+   LEARN SCREEN
+══════════════════════════════════════ */
+#screen-learn{background:linear-gradient(160deg,var(--deep) 0%,#130f2e 100%);align-items:stretch}
+.learn-header{padding:14px 20px;background:rgba(13,11,30,.9);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20;flex-shrink:0}
+.learn-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.learn-back{background:transparent;border:none;color:var(--muted);font-size:18px;padding:0 4px;cursor:pointer;transition:color .2s}
+.learn-back:hover{color:var(--text)}
+.learn-prog-bar{flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:99px}
+.learn-prog-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.learn-prog-label{font-family:'Cinzel',serif;font-size:11px;color:var(--muted);min-width:32px;text-align:right}
+.learn-nav-tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.learn-nav-tabs::-webkit-scrollbar{display:none}
+.learn-tab{
+  background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:20px;
+  padding:5px 12px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  color:var(--muted);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.learn-tab.active{color:var(--text);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.06)}
+.learn-tab.done{border-color:var(--green);color:var(--green)}
+.learn-body{flex:1;overflow-y:auto;padding:20px 16px 100px}
+.learn-content{max-width:640px;margin:0 auto;animation:fadeUp .5s ease both}
+.learn-world-banner{
+  border-radius:16px;padding:20px 22px;margin-bottom:24px;
+  display:flex;align-items:center;gap:16px;
+}
+.learn-world-emoji{font-size:44px;flex-shrink:0}
+.learn-world-info{}
+.learn-world-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-bottom:4px}
+.learn-world-title{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff;line-height:1.2}
+.learn-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.learn-section-sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.6}
+/* Content cards */
+.content-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.content-card-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.content-card p{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:10px}
+.content-card p:last-child{margin-bottom:0}
+.content-card strong{color:var(--text)}
+/* Highlight box */
+.highlight-box{
+  border-radius:12px;padding:16px 18px;margin-bottom:14px;
+  border-left:4px solid;
+}
+.highlight-box.tip{background:rgba(16,185,129,.08);border-color:var(--green)}
+.highlight-box.tip .hb-label{color:var(--green)}
+.highlight-box.warning{background:rgba(245,158,11,.07);border-color:var(--gold)}
+.highlight-box.warning .hb-label{color:var(--gold)}
+.highlight-box.example{background:rgba(59,130,246,.08);border-color:var(--blue)}
+.highlight-box.example .hb-label{color:var(--blue)}
+.hb-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.hb-text{color:var(--muted);font-size:13px;line-height:1.75}
+.hb-text strong{color:var(--text)}
+/* Key points list */
+.key-points{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.key-points li{
+  background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--muted);line-height:1.6;
+}
+.key-points li .kp-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.key-points li strong{color:var(--text)}
+/* Technique card */
+.technique-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.technique-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px}
+.tc-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tc-icon{font-size:20px}
+.tc-name{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--text)}
+.tc-desc{color:var(--muted);font-size:13px;line-height:1.7}
+.tc-example{background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;margin-top:8px;color:#a8b8d0;font-size:12px;line-height:1.6;font-style:italic}
+/* Summary box */
+.summary-box{
+  background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.04));
+  border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:20px;margin-bottom:14px;
+}
+.summary-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.summary-items{display:flex;flex-direction:column;gap:6px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);line-height:1.5}
+.summary-item .si-dot{color:var(--gold);font-size:16px;flex-shrink:0;line-height:1.3}
+/* Bottom CTA */
+.learn-footer{
+  position:fixed;bottom:0;left:0;right:0;padding:14px 20px;
+  background:rgba(13,11,30,.95);border-top:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(12px);z-index:25;display:flex;gap:12px;align-items:center;justify-content:center;
+}
+.btn-quiz{
+  background:linear-gradient(135deg,var(--gold),#d97706);border:none;
+  border-radius:50px;padding:13px 36px;color:#1a1206;
+  font-family:'Cinzel',serif;font-weight:700;font-size:14px;letter-spacing:1px;
+  box-shadow:0 0 22px rgba(245,158,11,.4);transition:all .2s;
+}
+.btn-quiz:hover{transform:scale(1.04)}
+.btn-quiz:disabled{background:rgba(255,255,255,.1);color:var(--dim);box-shadow:none;cursor:not-allowed;transform:none}
+.learn-read-note{color:var(--muted);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px}
+
+/* ══════════════════════════════════════
+   QUIZ SCREEN
+══════════════════════════════════════ */
+#screen-quiz{background:linear-gradient(160deg,var(--deep),#130f2e);align-items:stretch}
+.quiz-inner{flex:1;display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px;max-width:560px;width:100%;margin:0 auto}
+.quiz-top{width:100%;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.quiz-counter{font-family:'Cinzel',serif;font-size:12px;color:var(--muted)}
+.quiz-world-tag{font-family:'Cinzel',serif;font-size:12px;font-weight:600}
+.quiz-q-prog{width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:99px;margin-bottom:16px}
+.quiz-q-prog-fill{height:100%;border-radius:99px;transition:width .4s}
+.timer-wrap{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:16px}
+.timer-bar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.timer-fill{height:100%;border-radius:99px;transition:width 1s linear}
+.timer-num{font-family:'Cinzel',serif;font-weight:700;font-size:17px;min-width:24px;text-align:right}
+.quiz-qcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;margin-bottom:16px;width:100%;text-align:center}
+.quiz-hint-ref{font-family:'Cinzel',serif;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;opacity:.7}
+.quiz-qtext{color:#fff;font-family:'Cinzel',serif;font-size:clamp(14px,3vw,17px);font-weight:600;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;width:100%;margin-bottom:14px}
+.quiz-opt{
+  background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:13px 18px;display:flex;align-items:center;gap:14px;
+  transition:all .25s;text-align:left;width:100%;color:var(--text);
+}
+.quiz-opt:not(:disabled):hover{border-color:var(--gold);background:rgba(245,158,11,.07);cursor:pointer}
+.quiz-opt:disabled{cursor:default}
+.quiz-opt.correct{border-color:var(--green)!important;background:rgba(16,185,129,.12)!important;box-shadow:0 0 14px rgba(16,185,129,.3)}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important}
+.quiz-opt.elim{opacity:.18;pointer-events:none}
+.opt-letter{
+  width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;transition:background .3s;
+}
+.quiz-opt.correct .opt-letter{background:var(--green)}
+.quiz-opt.wrong .opt-letter{background:var(--red)}
+.opt-text{font-size:13px;line-height:1.4;flex:1}
+.quiz-opt.correct .opt-text{color:#6ee7b7}
+.quiz-opt.wrong .opt-text{color:#fca5a5}
+.quiz-explanation{border-radius:12px;padding:14px 16px;width:100%;animation:fadeUp .4s ease}
+.qe-correct{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25)}
+.qe-wrong{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2)}
+.qe-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.qe-label.c{color:var(--green)}
+.qe-label.w{color:#fca5a5}
+.qe-text{color:#ccc8e0;font-size:13px;line-height:1.65}
+.hint-btn{
+  margin-top:10px;background:transparent;border:1px dashed rgba(245,158,11,.35);
+  border-radius:8px;padding:7px 18px;color:var(--gold);
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;transition:all .2s;
+}
+.hint-btn:hover:not(:disabled){background:rgba(245,158,11,.07)}
+.hint-btn:disabled{color:var(--dim);border-color:rgba(255,255,255,.08);cursor:not-allowed}
+.flash-overlay{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .3s}
+
+/* ══════════════════════════════════════
+   LEVEL COMPLETE
+══════════════════════════════════════ */
+#screen-levelcomplete{
+  background:linear-gradient(160deg,var(--deep),#130f2e);
+  align-items:center;justify-content:center;text-align:center;padding:28px 20px;
+}
+.lc-wrap{max-width:460px;width:100%;animation:fadeUp .6s ease both}
+.lc-icon{font-size:64px;margin-bottom:8px}
+.lc-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;opacity:.9}
+.lc-title{color:#fff;font-family:'Cinzel',serif;font-size:22px;font-weight:700;margin-bottom:20px}
+.lc-stars{display:flex;gap:8px;justify-content:center;font-size:36px;margin-bottom:24px}
+.lc-stats{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:18px 32px;margin-bottom:20px}
+.lc-stat-row{display:flex;justify-content:space-between;gap:24px;margin-bottom:10px;align-items:center}
+.lc-stat-row:last-child{margin-bottom:0}
+.lc-stat-label{color:var(--muted);font-family:'Cinzel',serif;font-size:12px}
+.lc-stat-val{color:#fff;font-family:'Cinzel',serif;font-size:15px;font-weight:700}
+.lc-new-badges{margin-bottom:20px}
+.lc-nb-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.lc-nb-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.lc-nb-chip{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.lc-nb-chip span{font-size:18px}
+.lc-nb-name{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);text-align:left}
+.lc-nb-desc{color:var(--muted);font-size:11px;text-align:left}
+.btn-continue{
+  background:linear-gradient(135deg,var(--gold),#d97706);border:none;
+  border-radius:50px;padding:13px 40px;color:#1a1206;
+  font-family:'Cinzel',serif;font-weight:700;font-size:14px;letter-spacing:1px;
+  box-shadow:0 0 20px rgba(245,158,11,.4);transition:all .2s;
+}
+.btn-continue:hover{transform:scale(1.04)}
+
+/* ══════════════════════════════════════
+   GAME OVER
+══════════════════════════════════════ */
+#screen-gameover{
+  background:linear-gradient(160deg,#180000,#2a0000);
+  align-items:center;justify-content:center;text-align:center;padding:32px 20px;
+}
+.go-wrap{max-width:380px;animation:fadeUp .6s ease both}
+
+/* ══════════════════════════════════════
+   FINAL RESULTS
+══════════════════════════════════════ */
+#screen-final{
+  background:radial-gradient(ellipse at 50% 20%,#2a1f5e 0%,#0d0b1e 70%);
+  align-items:center;justify-content:center;padding:32px 20px;overflow-y:auto;
+}
+.final-wrap{max-width:480px;width:100%;text-align:center;animation:fadeUp .7s ease both;padding:20px 0}
+.final-trophy{font-size:80px;filter:drop-shadow(0 0 22px var(--gold));margin-bottom:8px}
+.final-title{
+  font-family:'Cinzel',serif;font-size:clamp(22px,5vw,38px);font-weight:900;
+  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;
+}
+.final-sub{color:#c4b5fd;font-family:'Cinzel',serif;font-size:13px;margin-bottom:4px}
+.final-rank{color:var(--gold2);font-family:'Cinzel',serif;font-size:19px;font-weight:700;margin-bottom:24px}
+.final-stats{background:var(--card);border:1px solid rgba(245,158,11,.22);border-radius:var(--radius);padding:22px 32px;margin-bottom:22px}
+.final-row{display:flex;justify-content:space-between;gap:32px;margin-bottom:12px;align-items:center}
+.final-row:last-child{margin-bottom:0}
+.final-row-label{color:var(--muted);font-family:'Cinzel',serif;font-size:13px}
+.final-row-val{color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700}
+.all-badges-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.all-badges-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:26px}
+.ab-item{border-radius:10px;padding:7px 13px;display:flex;align-items:center;gap:7px}
+.ab-item.earned{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4)}
+.ab-item.unearned{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);opacity:.3}
+.ab-item span{font-size:17px}
+.ab-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold2)}
+.ab-item.unearned .ab-name{color:var(--dim)}
+
+/* ── SHARED BUTTONS ── */
+.btn-ghost{
+  background:transparent;border:1px solid rgba(255,255,255,.18);
+  border-radius:50px;padding:11px 26px;color:var(--muted);
+  font-family:'Cinzel',serif;font-size:13px;transition:all .2s;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.35);color:var(--text)}
+.btn-danger{
+  background:linear-gradient(135deg,var(--red),#b91c1c);border:none;
+  border-radius:50px;padding:13px 32px;color:#fff;
+  font-family:'Cinzel',serif;font-weight:700;font-size:14px;transition:all .2s;
+}
+.btn-danger:hover{transform:scale(1.04)}
+</style>
+</head>
+<body>
+<div id="starsBg"></div>
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<div id="hud">
+  <div class="hud-lives" id="hudLives"></div>
+  <div class="hud-center" id="hudCenter"></div>
+  <div class="hud-xp">⚡ <span id="hudXp">0</span></div>
+</div>
+
+<div id="app">
+
+<!-- ══ WELCOME ══ -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-wrap">
+    <div class="welcome-crest">🗡️</div>
+    <div class="welcome-title">Quiz Quest</div>
+    <div class="welcome-tagline">Sales Mastery · Learn · Prove · Conquer</div>
+    <div class="welcome-story">
+      The Kingdom of Sales is under siege by ignorance. As the Chosen Learner, you must journey through five realms —
+      <strong>reading sacred scrolls of knowledge</strong>, then <strong>proving your mastery</strong> to unlock each gate.
+      Only the sharpest minds claim the title of <strong>Sales Champion</strong>.
+    </div>
+    <div class="welcome-features">
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <div class="feature-title">Read First</div>
+        <div class="feature-desc">Study rich content before every quiz — no guessing allowed!</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Unlock Levels</div>
+        <div class="feature-desc">Pass each quiz to reveal the next chapter of your journey.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">❤️</div>
+        <div class="feature-title">3 Lives</div>
+        <div class="feature-desc">Wrong answers cost lives. Learn well or face defeat!</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏅</div>
+        <div class="feature-title">Earn Badges</div>
+        <div class="feature-desc">Collect achievements for speed, accuracy, and mastery.</div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="goMap()">Begin Your Quest ⚔️</button>
+  </div>
+</div>
+
+<!-- ══ MAP ══ -->
+<div id="screen-map" class="screen">
+  <div class="map-header">
+    <div class="map-lbl">Your Journey</div>
+    <div class="map-h1">Adventure Map</div>
+    <div class="map-xp-bar">⚡ <span id="mapXp">0</span> XP &nbsp;·&nbsp; <span id="mapProgress">0/5</span> Worlds Complete</div>
+  </div>
+  <div class="map-body">
+    <div class="map-worlds" id="mapWorlds"></div>
+    <div class="map-badges-section" id="mapBadgesSection" style="display:none">
+      <div class="map-badges-title">Badges Earned</div>
+      <div class="badges-flex" id="mapBadgesRow"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LEARN ══ -->
+<div id="screen-learn" class="screen">
+  <div class="learn-header">
+    <div class="learn-progress-row">
+      <button class="learn-back" onclick="goMap()">←</button>
+      <div class="learn-prog-bar"><div class="learn-prog-fill" id="learnProgFill"></div></div>
+      <div class="learn-prog-label" id="learnProgLabel"></div>
+    </div>
+    <div class="learn-nav-tabs" id="learnNavTabs"></div>
+  </div>
+  <div class="learn-body">
+    <div class="learn-content" id="learnContent"></div>
+  </div>
+  <div class="learn-footer">
+    <div>
+      <div class="learn-read-note" id="learnReadNote">Read all sections to unlock the quiz</div>
+    </div>
+    <button class="btn-quiz" id="learnQuizBtn" disabled onclick="startQuiz()">Take the Quiz 🎯</button>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-inner">
+    <div class="quiz-top">
+      <div class="quiz-counter" id="qCounter"></div>
+      <div class="quiz-world-tag" id="qWorldTag"></div>
+    </div>
+    <div class="quiz-q-prog"><div class="quiz-q-prog-fill" id="qProgFill"></div></div>
+    <div class="timer-wrap">
+      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="timer-num" id="timerNum">20</div>
+    </div>
+    <div class="quiz-qcard">
+      <div class="quiz-hint-ref" id="qHintRef"></div>
+      <div class="quiz-qtext" id="qText"></div>
+    </div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div id="qExpl"></div>
+    <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Use Hint (50 XP)</button>
+  </div>
+</div>
+
+<!-- ══ LEVEL COMPLETE ══ -->
+<div id="screen-levelcomplete" class="screen">
+  <div class="lc-wrap">
+    <div class="lc-icon" id="lcIcon"></div>
+    <div class="lc-sub" id="lcSub"></div>
+    <div class="lc-title" id="lcTitle"></div>
+    <div class="lc-stars" id="lcStars"></div>
+    <div class="lc-stats">
+      <div class="lc-stat-row"><span class="lc-stat-label">✅ Correct Answers</span><span class="lc-stat-val" id="lcCorrect"></span></div>
+      <div class="lc-stat-row"><span class="lc-stat-label">💰 XP Earned</span><span class="lc-stat-val" id="lcXp"></span></div>
+      <div class="lc-stat-row"><span class="lc-stat-label">❤️ Lives Remaining</span><span class="lc-stat-val" id="lcLives"></span></div>
+    </div>
+    <div class="lc-new-badges" id="lcNewBadges" style="display:none">
+      <div class="lc-nb-title">🏅 New Badges Unlocked!</div>
+      <div class="lc-nb-row" id="lcNbRow"></div>
+    </div>
+    <button class="btn-continue" id="lcBtn" onclick="levelContinue()"></button>
+  </div>
+</div>
+
+<!-- ══ GAME OVER ══ -->
+<div id="screen-gameover" class="screen">
+  <div class="go-wrap">
+    <div style="font-size:68px;margin-bottom:12px">💀</div>
+    <div style="color:var(--red);font-family:'Cinzel',serif;font-size:26px;font-weight:700;margin-bottom:8px">Defeated!</div>
+    <div style="color:var(--muted);font-family:'Cinzel',serif;font-size:13px;margin-bottom:6px">You ran out of lives in</div>
+    <div style="color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-bottom:12px" id="goWorldName"></div>
+    <div style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:28px;max-width:320px">
+      The scrolls of knowledge await you. Study them again — victory belongs to the persistent!
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-ghost" onclick="goMap()">← Back to Map</button>
+      <button class="btn-ghost" onclick="reviewContent()" style="color:var(--gold);border-color:rgba(245,158,11,.3)">📖 Review Content</button>
+      <button class="btn-danger" onclick="retryQuiz()">⚔️ Retry Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FINAL RESULTS ══ -->
+<div id="screen-final" class="screen">
+  <div class="final-wrap">
+    <div class="final-trophy">🏆</div>
+    <div class="final-title">Quest Complete!</div>
+    <div class="final-sub">You are now a certified Sales Champion</div>
+    <div class="final-rank" id="finalRank"></div>
+    <div class="final-stats">
+      <div class="final-row"><span class="final-row-label">⚡ Total XP</span><span class="final-row-val" id="fXp"></span></div>
+      <div class="final-row"><span class="final-row-label">⭐ Stars Earned</span><span class="final-row-val" id="fStars"></span></div>
+      <div class="final-row"><span class="final-row-label">🎯 Accuracy</span><span class="final-row-val" id="fAccuracy"></span></div>
+      <div class="final-row"><span class="final-row-label">🏅 Badges</span><span class="final-row-val" id="fBadges"></span></div>
+    </div>
+    <div class="all-badges-title">All Badges</div>
+    <div class="all-badges-grid" id="allBadgesGrid"></div>
+    <button class="btn-continue" onclick="replayGame()">🔁 Play Again</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// GAME CONTENT DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+const WORLDS = [
+{
+  id:1, emoji:"🏕️", color:"#f59e0b",
+  mapLabel:"The Outpost", isBoss:false,
+  title:"Prospecting & First Impressions",
+  mapDesc:"Learn how to find the right customers and make powerful first impressions.",
+  learnSections:[
+    {
+      tab:"What is Prospecting?",
+      html:`
+        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.25)">
+          <div class="learn-world-emoji">🏕️</div>
+          <div class="learn-world-info">
+            <div class="learn-world-sub" style="color:#f59e0b">World 1 · The Outpost</div>
+            <div class="learn-world-title">Prospecting & First Impressions</div>
+          </div>
+        </div>
+        <div class="learn-section-title">🎯 What is Sales Prospecting?</div>
+        <div class="learn-section-sub">Prospecting is the lifeblood of any sales career. Without it, your pipeline dries up and deals stop flowing.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#f59e0b">📌 Definition</div>
+          <p>Prospecting is the process of <strong>identifying and qualifying potential customers</strong> (called "prospects") who are likely to benefit from your product or service and have the ability to purchase it.</p>
+          <p>Think of it like mining for gold — you have to sift through a lot of earth to find the valuable nuggets. Great salespeople are expert prospectors.</p>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Pro Tip</div>
+          <div class="hb-text">The quality of your prospects determines the quality of your deals. <strong>Always prioritize finding the right people over finding the most people.</strong></div>
+        </div>
+        <ul class="key-points">
+          <li><span class="kp-icon">🔍</span><div><strong>Cold Prospecting:</strong> Reaching out to people with no prior contact — cold calls, cold emails, social outreach.</div></li>
+          <li><span class="kp-icon">🤝</span><div><strong>Warm Prospecting:</strong> Following up with people who've shown prior interest — webinar attendees, content downloaders, referrals.</div></li>
+          <li><span class="kp-icon">🌐</span><div><strong>Inbound Leads:</strong> Prospects who come to you through marketing efforts — website, ads, SEO content.</div></li>
+        </ul>
+      `
+    },
+    {
+      tab:"Ideal Customer Profile",
+      html:`
+        <div class="learn-section-title">👤 The Ideal Customer Profile (ICP)</div>
+        <div class="learn-section-sub">Before you prospect, you need a crystal-clear picture of WHO you're looking for.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#f59e0b">📌 What is an ICP?</div>
+          <p>An <strong>Ideal Customer Profile</strong> is a detailed description of the type of company or person who would get the most value from your solution and is most likely to buy. It's your targeting blueprint.</p>
+        </div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🏢</div><div class="tc-name">For B2B Sales — Key ICP Factors</div></div>
+            <div class="tc-desc">Company size, industry, revenue range, geography, tech stack, growth stage, pain points.</div>
+            <div class="tc-example">"Mid-sized SaaS companies (50–500 employees) in the US, spending over $10K/year on customer support tools."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">👤</div><div class="tc-name">For B2C Sales — Key ICP Factors</div></div>
+            <div class="tc-desc">Age, income, lifestyle, interests, buying behavior, geographic location, motivations.</div>
+            <div class="tc-example">"Urban professionals aged 28–45, earning $75K+, interested in wellness and time-saving solutions."</div>
+          </div>
+        </div>
+        <div class="highlight-box warning">
+          <div class="hb-label">⚠️ Common Mistake</div>
+          <div class="hb-text">Defining your ICP as "anyone who could benefit" is a trap. <strong>The narrower and more specific your ICP, the more focused and effective your prospecting becomes.</strong></div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-title">⭐ ICP Quick Formula</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Best current customers + What they have in common = Your ICP</div>
+          </div>
+        </div>
+      `
+    },
+    {
+      tab:"Prospecting Methods",
+      html:`
+        <div class="learn-section-title">🛠️ Top Prospecting Methods</div>
+        <div class="learn-section-sub">Great salespeople use multiple channels to fill their pipeline consistently.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📞</div><div class="tc-name">Cold Calling</div></div>
+            <div class="tc-desc">Directly calling potential customers with no prior relationship. Requires thick skin but high reward when done right.</div>
+            <div class="tc-example">Best practice: Research the prospect first, open with a relevant hook, keep it under 2 minutes.</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">💼</div><div class="tc-name">LinkedIn Outreach</div></div>
+            <div class="tc-desc">Connecting with decision-makers via personalized messages. One of the most powerful B2B prospecting tools today.</div>
+            <div class="tc-example">Personalize every message. Reference their content or company news. Never lead with a pitch.</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🤝</div><div class="tc-name">Referral Requests</div></div>
+            <div class="tc-desc">Asking satisfied customers to introduce you to others in their network. The highest-converting prospecting method.</div>
+            <div class="tc-example">"Is there anyone in your network who might benefit from what we've built together?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📧</div><div class="tc-name">Cold Email Sequences</div></div>
+            <div class="tc-desc">A series of personalized emails sent over several days. Scalable and measurable when done correctly.</div>
+            <div class="tc-example">Subject lines drive opens. Value-first content drives replies. Always include a clear CTA.</div>
+          </div>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Rule of Thumb</div>
+          <div class="hb-text">Combine at least 3 prospecting channels. <strong>Multi-touch outreach (call + email + LinkedIn) increases response rates by up to 3x</strong> compared to single-channel approaches.</div>
+        </div>
+      `
+    },
+    {
+      tab:"First Impressions",
+      html:`
+        <div class="learn-section-title">✨ Making a Powerful First Impression</div>
+        <div class="learn-section-sub">You have 7 seconds to make a first impression. Make them count.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#f59e0b">📌 The Elevator Pitch</div>
+          <p>Your elevator pitch is a <strong>30–60 second introduction</strong> that clearly communicates who you are, what you do, who you help, and what makes you different. It's the foundation of every first interaction.</p>
+        </div>
+        <div class="technique-card" style="margin-bottom:14px">
+          <div class="tc-header"><div class="tc-icon">🎤</div><div class="tc-name">The Elevator Pitch Formula</div></div>
+          <div class="tc-desc">I help [target audience] achieve [desired outcome] by [unique approach/solution], unlike [alternative] which [limitation].</div>
+          <div class="tc-example">"I help mid-sized e-commerce brands reduce cart abandonment by 40% using AI-powered personalization — unlike generic email tools that send the same message to everyone."</div>
+        </div>
+        <ul class="key-points">
+          <li><span class="kp-icon">😊</span><div><strong>Build Rapport First:</strong> Before talking business, connect as a human. Ask about them, comment on something genuine. People buy from people they like.</div></li>
+          <li><span class="kp-icon">🎯</span><div><strong>Establish Credibility:</strong> Mention a relevant result, client, or credential early. Credibility makes prospects listen more carefully.</div></li>
+          <li><span class="kp-icon">🚫</span><div><strong>Avoid These Mistakes:</strong> Don't lead with your product list, don't speak faster when nervous, never criticize competitors in your opening.</div></li>
+        </ul>
+        <div class="summary-box">
+          <div class="summary-title">📋 Chapter Summary — Key Takeaways</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Prospecting = finding & qualifying the right potential customers</div>
+            <div class="summary-item"><span class="si-dot">→</span>Always define your ICP before you start prospecting</div>
+            <div class="summary-item"><span class="si-dot">→</span>Use multiple prospecting channels for maximum pipeline</div>
+            <div class="summary-item"><span class="si-dot">→</span>First impressions are built on rapport, credibility and a clear value pitch</div>
+            <div class="summary-item"><span class="si-dot">→</span>Quality of prospects always beats quantity</div>
+          </div>
+        </div>
+      `
+    }
+  ],
+  questions:[
+    {q:"What is the PRIMARY goal of prospecting in sales?",options:["Close a deal immediately","Identify and qualify potential customers","Upsell existing customers","Collect competitor data"],answer:1,ref:"Section 1: What is Prospecting?",explanation:"Prospecting is about finding the RIGHT people — those who genuinely need your solution and can afford it. Quality beats quantity every time."},
+    {q:"What does 'ICP' stand for in modern sales?",options:["Internal Control Process","Ideal Customer Profile","Initial Contact Protocol","Investment Cycle Plan"],answer:1,ref:"Section 2: Ideal Customer Profile",explanation:"The Ideal Customer Profile defines who your BEST customers are, helping you focus your energy where it counts most."},
+    {q:"Which of these is NOT considered a good prospecting method?",options:["Cold calling","LinkedIn outreach","Referral requests","Sending mass unsolicited spam"],answer:3,ref:"Section 3: Prospecting Methods",explanation:"Spam destroys trust and reputation. Great salespeople prospect with permission-based, targeted and personalized methods."},
+    {q:"The 30-second elevator pitch is primarily designed to...",options:["List every product feature in detail","Quickly communicate your core value proposition","Immediately ask for a signed contract","Confuse the prospect into agreeing"],answer:1,ref:"Section 4: First Impressions",explanation:"The elevator pitch distills your value into a concise, compelling message — fast enough for a short elevator ride and memorable enough to stick."},
+    {q:"When making a first impression, what matters MOST?",options:["Reciting your product's full price list","Talking faster than the competition","Building rapport and establishing credibility","Criticizing competitor products upfront"],answer:2,ref:"Section 4: First Impressions",explanation:"People buy from people they trust. Rapport and credibility come before any product conversation — always."},
+  ]
+},
+{
+  id:2, emoji:"🌲", color:"#10b981",
+  mapLabel:"The Whispering Forest", isBoss:false,
+  title:"Needs Discovery & Active Listening",
+  mapDesc:"Master the art of asking the right questions and deeply understanding your customer.",
+  learnSections:[
+    {
+      tab:"Why Discovery Matters",
+      html:`
+        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.25)">
+          <div class="learn-world-emoji">🌲</div>
+          <div class="learn-world-info">
+            <div class="learn-world-sub" style="color:#10b981">World 2 · The Whispering Forest</div>
+            <div class="learn-world-title">Needs Discovery & Active Listening</div>
+          </div>
+        </div>
+        <div class="learn-section-title" style="color:#10b981">🌿 Why Discovery is the Heart of Selling</div>
+        <div class="learn-section-sub">The #1 mistake in sales is presenting a solution before understanding the problem. Discovery fixes this.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#10b981">📌 What is Needs Discovery?</div>
+          <p>Needs Discovery is the process of <strong>uncovering your prospect's true goals, challenges, and requirements</strong> through thoughtful questions and deep listening. It's the diagnostic phase before the prescription.</p>
+          <p>Think of it like a doctor's consultation: no good doctor prescribes medicine without first asking what hurts and running tests. Sales is exactly the same.</p>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 The Golden Rule</div>
+          <div class="hb-text">In a discovery call, <strong>your prospect should be speaking 70% of the time, you only 30%.</strong> The more they talk, the more intelligence you gather — and the more understood they feel.</div>
+        </div>
+        <ul class="key-points">
+          <li><span class="kp-icon">🎯</span><div><strong>Surface Needs:</strong> What the customer tells you they want — their stated problem.</div></li>
+          <li><span class="kp-icon">🔍</span><div><strong>Underlying Needs:</strong> The deeper root cause behind the surface need. This is where real value is unlocked.</div></li>
+          <li><span class="kp-icon">💡</span><div><strong>Latent Needs:</strong> Problems the customer doesn't even know they have yet — your job is to help them discover these.</div></li>
+        </ul>
+      `
+    },
+    {
+      tab:"SPIN Selling",
+      html:`
+        <div class="learn-section-title">🔄 The SPIN Selling Framework</div>
+        <div class="learn-section-sub">SPIN is the most research-backed discovery framework in sales, developed by Neil Rackham after studying 35,000 sales calls.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📊</div><div class="tc-name">S — Situation Questions</div></div>
+            <div class="tc-desc">Gather background information about the prospect's current state. Use sparingly — too many are boring.</div>
+            <div class="tc-example">"How many people are currently on your sales team?" / "What CRM are you using today?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">😟</div><div class="tc-name">P — Problem Questions</div></div>
+            <div class="tc-desc">Uncover difficulties, frustrations and dissatisfactions with the current situation. This is where discovery heats up.</div>
+            <div class="tc-example">"What's the most frustrating part of your current sales process?" / "Where are deals most often getting stuck?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📈</div><div class="tc-name">I — Implication Questions</div></div>
+            <div class="tc-desc">Explore the consequences and effects of the problem. These make the problem feel urgent and real.</div>
+            <div class="tc-example">"How does that slow process affect your quarterly targets?" / "What happens to team morale when deals fall through?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">✅</div><div class="tc-name">N — Need-Payoff Questions</div></div>
+            <div class="tc-desc">Get the prospect to articulate the value of solving the problem. They sell themselves on the solution.</div>
+            <div class="tc-example">"If you could cut that process in half, what would that mean for your team?" / "How valuable would it be to close 30% more deals?"</div>
+          </div>
+        </div>
+        <div class="highlight-box example">
+          <div class="hb-label">📘 Why This Works</div>
+          <div class="hb-text">Need-Payoff questions are the most powerful. <strong>When a prospect says out loud why solving a problem would be valuable, they've essentially sold themselves</strong> — your presentation just confirms what they've already concluded.</div>
+        </div>
+      `
+    },
+    {
+      tab:"Question Types",
+      html:`
+        <div class="learn-section-title">❓ Types of Discovery Questions</div>
+        <div class="learn-section-sub">The type of question you ask determines the type of answer you get. Open questions unlock conversation; closed questions confirm facts.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🔓</div><div class="tc-name">Open-Ended Questions</div></div>
+            <div class="tc-desc">Begin with Who, What, How, Why, Tell me about... They invite long, revealing answers and encourage the prospect to think deeply.</div>
+            <div class="tc-example">"What does success look like for your team this year?" / "How are you currently handling this challenge?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🔒</div><div class="tc-name">Closed Questions</div></div>
+            <div class="tc-desc">Result in yes/no or specific short answers. Use to confirm facts, summarize, or move to next steps.</div>
+            <div class="tc-example">"Are you the final decision-maker?" / "Is budget already allocated for this?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🎯</div><div class="tc-name">Clarifying Questions</div></div>
+            <div class="tc-desc">Dig deeper into something already shared. Show genuine interest and prevent misunderstandings.</div>
+            <div class="tc-example">"When you say 'too slow,' can you walk me through what that looks like day-to-day?"</div>
+          </div>
+        </div>
+        <div class="highlight-box warning">
+          <div class="hb-label">⚠️ Avoid Leading Questions</div>
+          <div class="hb-text">Leading questions push the prospect toward your desired answer. <strong>"You'd agree that our platform would solve that, right?"</strong> — these feel manipulative and erode trust. Always ask genuinely.</div>
+        </div>
+      `
+    },
+    {
+      tab:"Active Listening",
+      html:`
+        <div class="learn-section-title">👂 The Art of Active Listening</div>
+        <div class="learn-section-sub">Hearing and listening are different. Active listening is a skill that turns conversations into intelligence.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#10b981">📌 What is Active Listening?</div>
+          <p>Active listening means <strong>fully concentrating on what the customer says, understanding their meaning, and responding thoughtfully</strong> — not just waiting for your turn to speak. It includes body language, emotional tone, and reading between the lines.</p>
+        </div>
+        <ul class="key-points">
+          <li><span class="kp-icon">🔇</span><div><strong>Eliminate Distractions:</strong> Put your phone away. Close your laptop. Your full attention tells the prospect they matter.</div></li>
+          <li><span class="kp-icon">🪞</span><div><strong>Reflect Back:</strong> Paraphrase what you heard — "So if I understand correctly, the main challenge is..." This confirms understanding and makes them feel heard.</div></li>
+          <li><span class="kp-icon">⏸️</span><div><strong>Embrace Silence:</strong> After they finish speaking, pause 2–3 seconds before responding. Silence encourages them to elaborate and reveals more.</div></li>
+          <li><span class="kp-icon">📝</span><div><strong>Take Notes:</strong> Write down key phrases they use. Referencing their own words later in your pitch shows you truly listened.</div></li>
+        </ul>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Pain Point Discovery</div>
+          <div class="hb-text">A <strong>pain point</strong> is a specific problem or challenge the customer faces that your product solves. Great discovery uncovers 3–4 pain points. The more clearly you articulate their pain back to them, the more compelled they feel to act.</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-title">📋 Chapter Summary — Key Takeaways</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Diagnose before you prescribe — never present before discovering needs</div>
+            <div class="summary-item"><span class="si-dot">→</span>SPIN: Situation → Problem → Implication → Need-Payoff</div>
+            <div class="summary-item"><span class="si-dot">→</span>Open-ended questions unlock the best discovery conversations</div>
+            <div class="summary-item"><span class="si-dot">→</span>Speak 30%, listen 70% — let the prospect do the talking</div>
+            <div class="summary-item"><span class="si-dot">→</span>Active listening = reflect, pause, take notes, never interrupt</div>
+          </div>
+        </div>
+      `
+    }
+  ],
+  questions:[
+    {q:"The SPIN selling technique stands for...",options:["Sales, Pitch, Interest, Negotiate","Situation, Problem, Implication, Need-Payoff","Strategy, Price, Influence, Network","Speed, Process, Inform, Negotiate"],answer:1,ref:"Section 2: SPIN Selling",explanation:"SPIN (Situation, Problem, Implication, Need-Payoff) is a research-backed framework from Neil Rackham, proven across 35,000 sales calls."},
+    {q:"In a discovery conversation, what should the ideal speaking ratio be?",options:["Salesperson 70%, Prospect 30%","Salesperson 50%, Prospect 50%","Salesperson 30%, Prospect 70%","Salesperson 90%, Prospect 10%"],answer:2,ref:"Section 1: Why Discovery Matters",explanation:"The prospect should speak 70% of the time. The more they talk, the more you learn — and the more valued they feel."},
+    {q:"Which type of question BEST opens up a sales discovery conversation?",options:["A closed yes/no question","A leading question","An open-ended question","A hypothetical trap question"],answer:2,ref:"Section 3: Question Types",explanation:"Open-ended questions (Who, What, How, Why) invite the prospect to share freely, revealing valuable insights about their needs and pains."},
+    {q:"In sales, what is a 'pain point'?",options:["A physical injury in the workplace","A specific problem or challenge the customer faces","A difficult negotiation tactic","A complaint about your product's design"],answer:1,ref:"Section 4: Active Listening",explanation:"Pain points are the specific problems your product solves. Uncovering them clearly — using the prospect's own words — makes your solution feel essential."},
+    {q:"When is the BEST time to present your solution?",options:["At the very start of the meeting","Before asking any discovery questions","After thoroughly understanding the customer's needs","Only after they sign an NDA"],answer:2,ref:"Section 1: Why Discovery Matters",explanation:"Presenting too early is the #1 sales mistake. Always diagnose before you prescribe — understand the problem fully before offering the solution."},
+  ]
+},
+{
+  id:3, emoji:"🏰", color:"#8b5cf6",
+  mapLabel:"Castle of Doubt", isBoss:false,
+  title:"Objection Handling",
+  mapDesc:"Learn how to welcome, understand and overcome customer objections confidently.",
+  learnSections:[
+    {
+      tab:"What are Objections?",
+      html:`
+        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.25)">
+          <div class="learn-world-emoji">🏰</div>
+          <div class="learn-world-info">
+            <div class="learn-world-sub" style="color:#8b5cf6">World 3 · Castle of Doubt</div>
+            <div class="learn-world-title">Objection Handling</div>
+          </div>
+        </div>
+        <div class="learn-section-title" style="color:#8b5cf6">🛡️ Understanding Sales Objections</div>
+        <div class="learn-section-sub">Objections are not rejections — they are questions in disguise. The salesperson who masters them wins.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#8b5cf6">📌 What is an Objection?</div>
+          <p>A sales objection is any <strong>concern, hesitation, or reason a prospect gives for not moving forward</strong> in the sales process. It's a signal they're engaged but have unresolved questions.</p>
+          <p>The biggest mindset shift in sales: <strong>objections are good news</strong>. A prospect who raises objections is thinking about your offer. Silence or immediate rejection is far worse.</p>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Key Insight</div>
+          <div class="hb-text">Research shows <strong>60% of customers say no four times before saying yes</strong>. Most salespeople give up after 1–2 attempts. Handling objections is the difference between average and exceptional performance.</div>
+        </div>
+        <div class="technique-grid">
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">💰</div><div class="tc-name">Price Objections</div></div><div class="tc-desc">"It's too expensive" / "We don't have the budget" — The most common objection type. Usually a value gap, not a budget issue.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">⏰</div><div class="tc-name">Timing Objections</div></div><div class="tc-desc">"Now isn't a good time" / "Let's revisit next quarter" — Often signals competing priorities or fear of commitment.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">🏆</div><div class="tc-name">Competitor Objections</div></div><div class="tc-desc">"We're looking at [Competitor X]" — An opportunity to differentiate and highlight your unique value.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">🤔</div><div class="tc-name">Need Objections</div></div><div class="tc-desc">"We don't really need this right now" — Indicates you haven't yet made the pain feel urgent enough.</div></div>
+        </div>
+      `
+    },
+    {
+      tab:"The Response Framework",
+      html:`
+        <div class="learn-section-title">🔄 The 4-Step Objection Response Framework</div>
+        <div class="learn-section-sub">A structured approach prevents you from becoming defensive and keeps the conversation productive.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">1️⃣</div><div class="tc-name">Acknowledge</div></div>
+            <div class="tc-desc">Validate the objection without agreeing. Never fight or dismiss what they've said.</div>
+            <div class="tc-example">"That's a really fair concern, and I appreciate you being direct about it."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">2️⃣</div><div class="tc-name">Clarify</div></div>
+            <div class="tc-desc">Ask a question to understand the objection fully before attempting to respond. Don't assume you know what they mean.</div>
+            <div class="tc-example">"When you say the price is too high — are you comparing it to a specific budget limit or another solution?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">3️⃣</div><div class="tc-name">Respond</div></div>
+            <div class="tc-desc">Address the real underlying concern with evidence, reframing, social proof or ROI data.</div>
+            <div class="tc-example">"Our clients typically see ROI within 60 days, which means the investment pays for itself by Q2."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">4️⃣</div><div class="tc-name">Confirm</div></div>
+            <div class="tc-desc">Check that the objection has been resolved before moving forward. Never assume.</div>
+            <div class="tc-example">"Does that address your concern around the investment, or is there more you'd like to explore?"</div>
+          </div>
+        </div>
+        <div class="highlight-box warning">
+          <div class="hb-label">⚠️ Critical Rule</div>
+          <div class="hb-text"><strong>Never skip directly to "Respond."</strong> Acknowledging and clarifying first shows respect and ensures you're solving the right problem — not the one you assumed they had.</div>
+        </div>
+      `
+    },
+    {
+      tab:"Proven Techniques",
+      html:`
+        <div class="learn-section-title">🎯 Proven Objection Handling Techniques</div>
+        <div class="learn-section-sub">These are battle-tested approaches used by top performers worldwide.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🤲</div><div class="tc-name">Feel, Felt, Found</div></div>
+            <div class="tc-desc">A classic empathy-and-pivot technique that uses social proof to reframe the objection.</div>
+            <div class="tc-example">"I understand how you FEEL — many of our best clients FELT exactly the same way. What they FOUND was that within 90 days, they recovered the cost entirely."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🪃</div><div class="tc-name">The Boomerang</div></div>
+            <div class="tc-desc">Turn the objection itself into a reason to buy. Agree first, then reframe.</div>
+            <div class="tc-example">"You're right that it's a significant investment — which is exactly WHY our onboarding team works with you for 90 days to ensure you maximize every dollar."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🔍</div><div class="tc-name">The Clarifying Question</div></div>
+            <div class="tc-desc">When you're unsure what's really behind the objection, ask before answering. Dig for the real issue.</div>
+            <div class="tc-example">"Just so I understand — when you say you need to think about it, is it the timing, the budget, or something else I haven't addressed yet?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📊</div><div class="tc-name">ROI Reframe (for Price)</div></div>
+            <div class="tc-desc">Reframe price as an investment with measurable return rather than a cost.</div>
+            <div class="tc-example">"At $2,000/month, if this saves your team 10 hours per week, you're paying $5/hour for work that was costing you $40/hour. That's an 8x return."</div>
+          </div>
+        </div>
+        <div class="highlight-box example">
+          <div class="hb-label">📘 "I need to think about it"</div>
+          <div class="hb-text">This phrase is rarely about needing more time. It almost always means: <strong>"There's an unresolved concern I haven't voiced yet."</strong> Gently probe: "Of course — what specific part would you like to think through? I want to make sure you have everything you need."</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-title">📋 Chapter Summary — Key Takeaways</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Objections = engagement, not rejection — welcome them</div>
+            <div class="summary-item"><span class="si-dot">→</span>Always: Acknowledge → Clarify → Respond → Confirm</div>
+            <div class="summary-item"><span class="si-dot">→</span>"Feel, Felt, Found" builds empathy + social proof</div>
+            <div class="summary-item"><span class="si-dot">→</span>Price objections = value gap, not budget problem</div>
+            <div class="summary-item"><span class="si-dot">→</span>"I need to think about it" = hidden unresolved concern</div>
+          </div>
+        </div>
+      `
+    }
+  ],
+  questions:[
+    {q:"A prospect says 'It's too expensive.' Your BEST first response is...",options:["Immediately offer a 30% discount","End the conversation politely","Acknowledge, then explore their perception of value and ROI","Argue firmly that it is NOT expensive"],answer:2,ref:"Section 2: Response Framework",explanation:"Price objections signal a value gap. Acknowledge the concern first, then help them understand the ROI before touching price adjustments."},
+    {q:"The 'Feel, Felt, Found' technique is primarily used to...",options:["Close a deal quickly at any price","Empathize with and redirect an objection using social proof","Prospect for brand new leads","Upsell a premium package to existing customers"],answer:1,ref:"Section 3: Proven Techniques",explanation:"'I understand how you FEEL. Others have FELT the same. Here's what they FOUND...' — it validates emotion and social proof simultaneously."},
+    {q:"'I need to think about it' usually signals...",options:["The prospect is completely ready to buy","An unresolved concern or missing information","The prospect doesn't speak your language","They definitely want a follow-up in exactly one year"],answer:1,ref:"Section 3: Proven Techniques",explanation:"This phrase is rarely about time — it usually means there's an unvoiced concern. Gently probe: 'What part would you like to think through?'"},
+    {q:"What should you do FIRST when a customer raises an objection?",options:["Defend your product immediately and passionately","Drop the price right away to remove friction","Acknowledge and genuinely listen to understand the objection","Immediately escalate to your manager"],answer:2,ref:"Section 2: Response Framework",explanation:"The 4-step framework starts with Acknowledge. Never fight an objection — validate it first. This disarms defensiveness and builds trust."},
+    {q:"What does the 'Boomerang Technique' involve?",options:["Ending the call and sending a follow-up email","Agreeing with the objection first, then reframing it as a reason to buy","Offering a competitor's product as an alternative","Repeating the same pitch louder until they agree"],answer:1,ref:"Section 3: Proven Techniques",explanation:"The Boomerang turns the objection itself into a buying reason — e.g., 'That's exactly WHY this is designed the way it is...' It's elegant and effective."},
+  ]
+},
+{
+  id:4, emoji:"🌋", color:"#ef4444",
+  mapLabel:"The Closing Volcano", isBoss:false,
+  title:"Closing Strategies",
+  mapDesc:"Learn the art and science of asking for — and getting — the sale.",
+  learnSections:[
+    {
+      tab:"The Art of Closing",
+      html:`
+        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.25)">
+          <div class="learn-world-emoji">🌋</div>
+          <div class="learn-world-info">
+            <div class="learn-world-sub" style="color:#ef4444">World 4 · The Closing Volcano</div>
+            <div class="learn-world-title">Closing Strategies</div>
+          </div>
+        </div>
+        <div class="learn-section-title" style="color:#ef4444">🔥 What is a Sales Close?</div>
+        <div class="learn-section-sub">Closing is the culmination of everything before it. If discovery and objection handling were done well, the close is almost a formality.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#ef4444">📌 The Philosophy of Closing</div>
+          <p>Classic sales wisdom said "ABC — Always Be Closing." Modern sales has evolved this to <strong>"Always Be Curious"</strong> — understanding the prospect's world so thoroughly that asking for the business feels natural, not pushy.</p>
+          <p>The close is not a trick. It is the <strong>logical next step</strong> after the prospect has confirmed they have a problem, agreed your solution fits, and has no unresolved objections.</p>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Buying Signals to Watch For</div>
+          <div class="hb-text">Before closing, look for signals: <strong>leaning forward, asking about implementation, discussing pricing details, asking about your existing clients, saying "when we do this..."</strong> These are green lights to close.</div>
+        </div>
+        <div class="highlight-box warning">
+          <div class="hb-label">⚠️ The Closing Mistake</div>
+          <div class="hb-text">Closing too early (before objections are resolved) creates pressure and resistance. <strong>Only close when you've confirmed the prospect sees the value and has no remaining concerns.</strong></div>
+        </div>
+      `
+    },
+    {
+      tab:"Closing Techniques",
+      html:`
+        <div class="learn-section-title">🎯 Proven Closing Techniques</div>
+        <div class="learn-section-sub">Different situations call for different closes. Knowing a variety gives you flexibility in any deal.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🤝</div><div class="tc-name">The Assumptive Close</div></div>
+            <div class="tc-desc">Speak and act as if the prospect has already decided to buy. Momentum drives the decision forward.</div>
+            <div class="tc-example">"Great — so shall we get the paperwork started this week, or would next Monday work better for you?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🔀</div><div class="tc-name">The Alternative Close</div></div>
+            <div class="tc-desc">Give the prospect two options — both of which move the deal forward. Avoids yes/no outcomes.</div>
+            <div class="tc-example">"Would you prefer to start with the Starter plan and upgrade, or go straight to the Pro plan to get full access immediately?"</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">⏰</div><div class="tc-name">The Urgency Close</div></div>
+            <div class="tc-desc">Create genuine time-sensitivity to prompt action. Only use when the scarcity is real — never fabricated.</div>
+            <div class="tc-example">"Our implementation slots for Q1 are almost full — if you want to be live before your peak season, this week would be the last window to confirm."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🐶</div><div class="tc-name">The Puppy Dog Close</div></div>
+            <div class="tc-desc">Let the prospect try before committing. Like a pet store letting you take a puppy home — once they experience the value, returning is hard.</div>
+            <div class="tc-example">"Why don't we set you up on a 14-day trial — no commitment, no credit card. See the results for yourself first."</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">✅</div><div class="tc-name">The Summary Close</div></div>
+            <div class="tc-desc">Recap the agreed-upon pain points and how your solution addresses each one, then ask for the business. Logical and systematic.</div>
+            <div class="tc-example">"So we've agreed: problem A costs you $X monthly, problem B is slowing your team by 20%, and our platform solves both. Does it make sense to move forward?"</div>
+          </div>
+        </div>
+      `
+    },
+    {
+      tab:"Follow-Up & Persistence",
+      html:`
+        <div class="learn-section-title">📬 The Power of Follow-Up</div>
+        <div class="learn-section-sub">Most deals are won after the first "no." Follow-up separates good salespeople from great ones.</div>
+        <div class="content-card">
+          <div class="content-card-title" style="color:#ef4444">📌 The Follow-Up Reality</div>
+          <p><strong>80% of sales require 5 or more follow-up touchpoints</strong> after the initial meeting. Yet 44% of salespeople give up after just one follow-up. The gap between persistence and giving up is where most deals are won or lost.</p>
+        </div>
+        <ul class="key-points">
+          <li><span class="kp-icon">💌</span><div><strong>Same-Day Summary Email:</strong> Send a brief recap within 2 hours of your meeting — key points discussed, agreed next steps, and your contact info. Sets you apart immediately.</div></li>
+          <li><span class="kp-icon">📞</span><div><strong>Value-Adding Touchpoints:</strong> Each follow-up should bring new value — a relevant case study, an article, an answer to a question they asked. Never follow up just to "check in."</div></li>
+          <li><span class="kp-icon">📅</span><div><strong>Always Set a Next Step:</strong> Before ending every call or meeting, confirm the next action and date. "I'll send you that proposal by Thursday — does a Friday morning call to review it work?"</div></li>
+        </ul>
+        <div class="highlight-box example">
+          <div class="hb-label">📘 Upselling After the Close</div>
+          <div class="hb-text"><strong>Upselling</strong> means recommending a higher-value version or add-ons to a customer who is already buying. The best time to upsell is right after the initial close, when trust is highest and buying momentum is strong.</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-title">📋 Chapter Summary — Key Takeaways</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Close only when objections are resolved and value is confirmed</div>
+            <div class="summary-item"><span class="si-dot">→</span>Watch for buying signals before attempting your close</div>
+            <div class="summary-item"><span class="si-dot">→</span>Assumptive, Alternative, Urgency, Puppy Dog, Summary — know them all</div>
+            <div class="summary-item"><span class="si-dot">→</span>80% of deals need 5+ follow-ups — be persistent with purpose</div>
+            <div class="summary-item"><span class="si-dot">→</span>Always leave every meeting with a confirmed next step</div>
+          </div>
+        </div>
+      `
+    }
+  ],
+  questions:[
+    {q:"What is the 'Assumptive Close' technique?",options:["Assuming the customer will never buy and moving on","Behaving as if the customer has already decided to buy","Assuming your competitor has a better product","Closing the deal without any prior discussion or context"],answer:1,ref:"Section 2: Closing Techniques",explanation:"The Assumptive Close uses confident, forward-moving language like 'Shall we get started this week?' — momentum carries the decision forward."},
+    {q:"The 'Alternative Close' technique involves...",options:["Offering a full refund option upfront","Giving two options that both lead to a sale","Asking the prospect to choose a competitor instead","Providing an alternative product from your range"],answer:1,ref:"Section 2: Closing Techniques",explanation:"e.g., 'Would you prefer the Starter or Pro plan?' — both choices advance the deal. This avoids the risky yes/no scenario."},
+    {q:"Research shows 80% of sales require how many follow-up touchpoints?",options:["1 follow-up","2 follow-ups","3 follow-ups","5 or more follow-ups"],answer:3,ref:"Section 3: Follow-Up & Persistence",explanation:"80% of sales require 5+ follow-ups, yet 44% of salespeople give up after just one. Persistence (with purpose) is a defining trait of top performers."},
+    {q:"When is the OPTIMAL time to attempt a close?",options:["At the very beginning of the first meeting","When the prospect shows clear buying signals with no outstanding objections","After they've said no exactly three times","Only via email — never verbally"],answer:1,ref:"Section 1: The Art of Closing",explanation:"Buying signals (asking about implementation, timelines, pricing details) are green lights. Combine that with resolved objections and confirmed value — then close."},
+    {q:"What is 'upselling' in a sales context?",options:["Selling to customers who are already dissatisfied","Encouraging customers to buy a higher-value version or complementary add-ons","Marking products above the recommended retail price","Calling customers multiple times per day until they respond"],answer:1,ref:"Section 3: Follow-Up & Persistence",explanation:"Upselling increases deal value by suggesting upgrades or add-ons. The best time is right after the initial close, when buying momentum is at its peak."},
+  ]
+},
+{
+  id:5, emoji:"🏆", color:"#f59e0b",
+  mapLabel:"The Final Arena", isBoss:true,
+  title:"⚔️ Final Boss: The Complete Sales Cycle",
+  mapDesc:"The ultimate test. Review the full end-to-end sales process before facing your capstone challenge.",
+  learnSections:[
+    {
+      tab:"The Full Sales Cycle",
+      html:`
+        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.35)">
+          <div class="learn-world-emoji">🏆</div>
+          <div class="learn-world-info">
+            <div class="learn-world-sub" style="color:#f59e0b">FINAL BOSS · The Final Arena</div>
+            <div class="learn-world-title">⚔️ The Complete Sales Cycle</div>
+          </div>
+        </div>
+        <div class="learn-section-title">🗺️ End-to-End Sales Process</div>
+        <div class="learn-section-sub">Every sale follows a logical sequence. Master the full cycle and no deal is out of reach.</div>
+        <div class="technique-grid">
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">1️⃣</div><div class="tc-name">Prospect</div></div><div class="tc-desc">Identify and qualify potential customers who fit your ICP. Build your pipeline with quality leads.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">2️⃣</div><div class="tc-name">Connect</div></div><div class="tc-desc">Make first contact and earn the right to a deeper conversation. Lead with value, not your pitch.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">3️⃣</div><div class="tc-name">Discover</div></div><div class="tc-desc">Conduct thorough needs discovery using SPIN. Understand pain points, goals, timeline and budget.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">4️⃣</div><div class="tc-name">Present</div></div><div class="tc-desc">Tailor your solution presentation to the specific pains uncovered. Show value, not just features.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">5️⃣</div><div class="tc-name">Handle Objections</div></div><div class="tc-desc">Welcome and resolve every objection using the 4-step framework. Don't move forward with unresolved doubts.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">6️⃣</div><div class="tc-name">Close</div></div><div class="tc-desc">Ask for the business confidently when buying signals appear and objections are resolved.</div></div>
+          <div class="technique-card"><div class="tc-header"><div class="tc-icon">7️⃣</div><div class="tc-name">Follow Up & Grow</div></div><div class="tc-desc">Nurture the relationship post-sale. Deliver value, ask for referrals, and explore upsell opportunities.</div></div>
+        </div>
+      `
+    },
+    {
+      tab:"Key Metrics & Concepts",
+      html:`
+        <div class="learn-section-title">📊 Essential Sales Metrics & Concepts</div>
+        <div class="learn-section-sub">Top salespeople track their performance. What gets measured gets improved.</div>
+        <div class="technique-grid">
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">📈</div><div class="tc-name">Conversion Rate</div></div>
+            <div class="tc-desc">The percentage of leads that become paying customers. Formula: (Customers ÷ Leads) × 100.</div>
+            <div class="tc-example">If 50 of your 200 leads became customers: 25% conversion rate.</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">💰</div><div class="tc-name">CAC (Customer Acquisition Cost)</div></div>
+            <div class="tc-desc">Total cost to acquire one customer. Divide total sales & marketing spend by number of customers won.</div>
+            <div class="tc-example">Spend $10,000 to acquire 20 customers = $500 CAC.</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">🔥</div><div class="tc-name">Warm vs Cold Leads</div></div>
+            <div class="tc-desc">Warm leads have already shown interest (attended webinar, downloaded content, been referred). Cold leads have had no prior contact with you.</div>
+            <div class="tc-example">Warm leads convert at 3–5x the rate of cold leads on average.</div>
+          </div>
+          <div class="technique-card">
+            <div class="tc-header"><div class="tc-icon">⭐</div><div class="tc-name">Social Proof</div></div>
+            <div class="tc-desc">Evidence that others have successfully used and benefited from your product. Testimonials, case studies, reviews, and client logos all count.</div>
+            <div class="tc-example">"92% of buyers trust peer recommendations over branded content." — Nielsen Research</div>
+          </div>
+        </div>
+        <div class="highlight-box tip">
+          <div class="hb-label">💡 Lost Deal Wisdom</div>
+          <div class="hb-text">Every lost deal is a learning opportunity. Top performers <strong>always ask for a debrief after a loss</strong> — "What could we have done differently?" This feedback loop is how the best salespeople keep improving.</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-title">📋 Final Boss Briefing — Master Checklist</div>
+          <div class="summary-items">
+            <div class="summary-item"><span class="si-dot">→</span>Sales Cycle: Prospect → Connect → Discover → Present → Handle Objections → Close → Follow Up</div>
+            <div class="summary-item"><span class="si-dot">→</span>Conversion Rate = (Customers / Leads) × 100</div>
+            <div class="summary-item"><span class="si-dot">→</span>Warm leads = prior engagement; Cold leads = no prior contact</div>
+            <div class="summary-item"><span class="si-dot">→</span>Social proof (testimonials, case studies) reduces prospect risk perception</div>
+            <div class="summary-item"><span class="si-dot">→</span>Lost deals = learning opportunities — always debrief</div>
+            <div class="summary-item"><span class="si-dot">→</span>Follow-up persistence wins 80% of deals that require 5+ touches</div>
+          </div>
+        </div>
+      `
+    }
+  ],
+  questions:[
+    {q:"What is the CORRECT order of a standard sales process?",options:["Close → Prospect → Discover → Present","Prospect → Discover → Present → Handle Objections → Close","Present → Prospect → Close → Discover","Discover → Close → Prospect → Present"],answer:1,ref:"Section 1: The Full Sales Cycle",explanation:"The logical sales flow: find prospects, understand needs, present a tailored solution, handle objections, then close. Each step prepares for the next."},
+    {q:"What is 'social proof' in a sales context?",options:["Your LinkedIn profile photo quality","Evidence that others have successfully used and benefited from your product","A social media paid advertisement","A government-issued quality certification"],answer:1,ref:"Section 2: Key Metrics",explanation:"Testimonials, case studies, and reviews are powerful social proof. They reduce the prospect's perceived risk by showing others have succeeded before them."},
+    {q:"Which KPI measures the percentage of leads that become paying customers?",options:["CAC (Customer Acquisition Cost)","NPS (Net Promoter Score)","Conversion Rate","MRR (Monthly Recurring Revenue)"],answer:2,ref:"Section 2: Key Metrics",explanation:"Conversion Rate = (Customers / Leads) × 100. It's a critical indicator of how effectively you move prospects through each stage of your pipeline."},
+    {q:"A 'warm lead' is best described as...",options:["A prospect from a hot geographic region","A prospect who has previously shown interest in your solution","A lead that was first contacted more than one year ago","A prospect with an unusually large purchase budget"],answer:1,ref:"Section 2: Key Metrics",explanation:"Warm leads have engaged (attended a webinar, downloaded content, been referred). They convert at 3–5x the rate of cold leads and should be prioritized accordingly."},
+    {q:"What is the MOST productive approach after losing a deal?",options:["Never contact the prospect again under any circumstances","Analyze it for lessons and ask the prospect for honest feedback","Blame the product or marketing team entirely","Immediately offer a 90% discount to re-engage them"],answer:1,ref:"Section 2: Key Metrics",explanation:"Every lost deal is a masterclass. Top salespeople debrief losses systematically to sharpen their approach — and often reconnect with lost prospects months later after improvements."},
+    {q:"What does 'ABC' stand for in the classic sales philosophy?",options:["Always Be Closing","Always Be Calling","Always Be Confident","Always Be Connecting"],answer:0,ref:"Section 1: The Full Sales Cycle",explanation:"'Always Be Closing' is the classic philosophy from Glengarry Glen Ross. Modern sales has evolved it to 'Always Be Curious' — understanding deeply, not just pushing to close."},
+    {q:"What percentage of sales require 5 or more follow-up touchpoints?",options:["20%","40%","60%","80%"],answer:3,ref:"Section 2: Key Metrics",explanation:"80% of sales need 5+ follow-ups — yet most salespeople stop after 1–2. Disciplined, value-adding follow-up is where the majority of deals are actually won."},
+  ]
+}
+];
+
+const ALL_BADGES = [
+  {id:"first_victory",icon:"⚔️",name:"First Victory",desc:"Complete your first level"},
+  {id:"speed_demon",icon:"⚡",name:"Speed Demon",desc:"Answer a question in under 6 seconds"},
+  {id:"flawless",icon:"💎",name:"Flawless Scholar",desc:"Complete a quiz without any wrong answers"},
+  {id:"survivor",icon:"🛡️",name:"Survivor",desc:"Complete a quiz with only 1 life remaining"},
+  {id:"halfway",icon:"🌟",name:"Halfway Hero",desc:"Complete 3 worlds"},
+  {id:"champion",icon:"🏆",name:"Sales Champion",desc:"Defeat the Final Boss"},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+let G = {};
+function resetGame() {
+  G = {
+    worldIdx:0, qIdx:0,
+    lives:3, totalXp:0, levelXp:0,
+    completedWorlds:[], stars:{}, badges:[],
+    sessionCorrect:0, hintUsed:false, speedUnlocked:false, newBadges:[],
+    totalAnswered:0, totalCorrect:0,
+    learnSectionIdx:0, sectionsRead:new Set(),
+    timerInterval:null, timeLeft:20,
+    eliminated:[], revealed:false,
+  };
+}
+resetGame();
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STARS BG
+// ═══════════════════════════════════════════════════════════════════════════════
+(function buildStars(){
+  const bg = document.getElementById('starsBg');
+  for(let i=0;i<30;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2.5+0.8;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${Math.random()*3+2}s`;
+    bg.appendChild(s);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCREEN MANAGER
+// ═══════════════════════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.getElementById('hud').style.display = id==='quiz' ? 'flex' : 'none';
+  window.scrollTo(0,0);
+}
+function updateHud(){
+  const w=WORLDS[G.worldIdx];
+  document.getElementById('hudLives').innerHTML=[0,1,2].map(i=>`<span style="opacity:${i<G.lives?1:.18};filter:${i<G.lives?'drop-shadow(0 0 5px #ef4444)':'none'}">❤️</span>`).join('');
+  document.getElementById('hudCenter').textContent=`World ${w.id} · ${w.mapLabel}`;
+  document.getElementById('hudXp').textContent=G.totalXp.toLocaleString()+' XP';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════════════════════════════════════
+function goMap(){
+  clearTimer();
+  buildMap();
+  showScreen('map');
+}
+function buildMap(){
+  document.getElementById('mapXp').textContent=G.totalXp.toLocaleString();
+  document.getElementById('mapProgress').textContent=`${G.completedWorlds.length}/5`;
+  const container=document.getElementById('mapWorlds');
+  container.innerHTML='';
+  WORLDS.forEach((w,i)=>{
+    const done=G.completedWorlds.includes(i);
+    const unlocked=i===0||G.completedWorlds.includes(i-1);
+    const ws=G.stars[i]||0;
+    const node=document.createElement('div'); node.className='world-node';
+    const card=document.createElement('button');
+    card.className='world-card'+(unlocked?' unlocked':'  locked')+(done?' completed':'');
+    card.style.cssText=unlocked?`border-color:${w.color}55;`+(done?`box-shadow:0 0 20px ${w.color}22`:''):'';
+    card.innerHTML=`
+      <div class="world-emoji">${unlocked?w.emoji:'🔒'}</div>
+      <div class="world-meta">
+        <div class="world-num" style="color:${unlocked?w.color:'#555'}">${w.isBoss?'⚔️ Final Boss · ':'World '+w.id+' · '}${w.mapLabel}</div>
+        <div class="world-name">${w.title}</div>
+        <div style="color:var(--muted);font-size:12px;margin:4px 0 6px;line-height:1.4">${w.mapDesc}</div>
+        <div class="world-stars">${[1,2,3].map(s=>`<span style="opacity:${s<=ws?1:.15}">${s<=ws?'⭐':'☆'}</span>`).join('')}</div>
+      </div>
+      ${done?`<div class="world-badge" style="background:rgba(${hexToRgb(w.color)},.12);border:1px solid ${w.color}55;color:${w.color}">✓ Done</div>`:''}
+      ${!unlocked?'<div class="world-badge" style="color:var(--dim);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">🔒</div>':''}
+    `;
+    if(unlocked) card.onclick=()=>openLearn(i);
+    node.appendChild(card);
+    if(i<WORLDS.length-1){
+      const conn=document.createElement('div');
+      conn.className='connector'+(done?' active':'');
+      node.appendChild(conn);
+    }
+    container.appendChild(node);
+  });
+  // badges
+  const sec=document.getElementById('mapBadgesSection');
+  if(G.badges.length>0){
+    sec.style.display='block';
+    document.getElementById('mapBadgesRow').innerHTML=G.badges.map(b=>`<div class="badge-pill"><span>${b.icon}</span><span class="badge-pill-name">${b.name}</span></div>`).join('');
+  } else sec.style.display='none';
+}
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEARN SCREEN
+// ═══════════════════════════════════════════════════════════════════════════════
+function openLearn(worldIdx){
+  G.worldIdx=worldIdx;
+  G.learnSectionIdx=0;
+  G.sectionsRead=new Set();
+  renderLearn(0);
+  showScreen('learn');
+}
+function renderLearn(secIdx){
+  G.learnSectionIdx=secIdx;
+  G.sectionsRead.add(secIdx);
+  const w=WORLDS[G.worldIdx];
+  const total=w.learnSections.length;
+  // Progress
+  const pct=Math.round((G.sectionsRead.size/total)*100);
+  document.getElementById('learnProgFill').style.cssText=`width:${pct}%;background:linear-gradient(90deg,${w.color},${w.color}99)`;
+  document.getElementById('learnProgLabel').textContent=`${pct}%`;
+  // Tabs
+  const tabsEl=document.getElementById('learnNavTabs');
+  tabsEl.innerHTML=w.learnSections.map((s,i)=>{
+    const cls='learn-tab'+(i===secIdx?' active':'')+(G.sectionsRead.has(i)&&i!==secIdx?' done':'');
+    return `<button class="${cls}" onclick="renderLearn(${i})">${s.tab}</button>`;
+  }).join('');
+  // Content
+  document.getElementById('learnContent').innerHTML=w.learnSections[secIdx].html;
+  // Quiz button
+  const allRead=G.sectionsRead.size>=total;
+  const btn=document.getElementById('learnQuizBtn');
+  const note=document.getElementById('learnReadNote');
+  btn.disabled=!allRead;
+  if(allRead){
+    btn.style.background=`linear-gradient(135deg,${w.color},${w.color}cc)`;
+    note.innerHTML=`<span style="color:var(--green)">✅ All sections read! Ready to take the quiz.</span>`;
+  } else {
+    btn.style.background='';
+    const remaining=total-G.sectionsRead.size;
+    note.textContent=`Read ${remaining} more section${remaining>1?'s':''} to unlock the quiz`;
+  }
+  // scroll content to top
+  document.querySelector('.learn-body').scrollTop=0;
+}
+function startQuiz(){
+  const w=WORLDS[G.worldIdx];
+  G.qIdx=0;
+  G.lives=3;
+  G.sessionCorrect=0;
+  G.hintUsed=false;
+  G.speedUnlocked=false;
+  G.newBadges=[];
+  G.levelXp=0;
+  G.eliminated=[];
+  G.revealed=false;
+  renderQuestion();
+  showScreen('quiz');
+  updateHud();
+}
+
+// Also allow going back to content review from game over
+function reviewContent(){
+  openLearn(G.worldIdx);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderQuestion(){
+  const w=WORLDS[G.worldIdx];
+  const q=w.questions[G.qIdx];
+  G.eliminated=[];
+  G.revealed=false;
+  clearTimer();
+  // Meta
+  document.getElementById('qCounter').textContent=`Question ${G.qIdx+1} of ${w.questions.length}`;
+  document.getElementById('qWorldTag').textContent=`${w.emoji} ${w.mapLabel}`;
+  document.getElementById('qWorldTag').style.color=w.color;
+  const pct=(G.qIdx/w.questions.length)*100;
+  document.getElementById('qProgFill').style.cssText=`width:${pct}%;background:linear-gradient(90deg,${w.color},${w.color}77)`;
+  // Content hint ref
+  document.getElementById('qHintRef').textContent=`📖 Based on: ${q.ref}`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qExpl').innerHTML='';
+  // Hint button
+  const hb=document.getElementById('hintBtn');
+  hb.style.display=w.isBoss?'none':'block';
+  hb.disabled=G.hintUsed;
+  hb.style.color=G.hintUsed?'var(--dim)':'var(--gold)';
+  // Options
+  const opts=document.getElementById('qOpts');
+  opts.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-opt'; btn.id=`opt-${i}`;
+    btn.innerHTML=`<div class="opt-letter" id="ol-${i}">${letters[i]}</div><div class="opt-text">${opt}</div>`;
+    btn.onclick=()=>selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  startTimer();
+  updateHud();
+}
+function startTimer(){
+  G.timeLeft=20;
+  updateTimerUI();
+  G.timerInterval=setInterval(()=>{
+    G.timeLeft--;
+    updateTimerUI();
+    if(G.timeLeft<=0){clearTimer();selectAnswer(-1);}
+  },1000);
+}
+function updateTimerUI(){
+  const pct=(G.timeLeft/20)*100;
+  const col=G.timeLeft>10?'var(--green)':G.timeLeft>5?'var(--gold)':'var(--red)';
+  document.getElementById('timerFill').style.cssText=`width:${pct}%;background:${col};box-shadow:0 0 6px ${col}`;
+  document.getElementById('timerNum').textContent=G.timeLeft;
+  document.getElementById('timerNum').style.color=col;
+}
+function clearTimer(){
+  if(G.timerInterval){clearInterval(G.timerInterval);G.timerInterval=null;}
+}
+function selectAnswer(idx){
+  if(G.revealed)return;
+  G.revealed=true;
+  clearTimer();
+  const w=WORLDS[G.worldIdx];
+  const q=w.questions[G.qIdx];
+  const correct=idx===q.answer;
+  const letters=['A','B','C','D'];
+  G.totalAnswered++;
+  if(correct)G.totalCorrect++;
+  // Style options
+  q.options.forEach((_,i)=>{
+    const btn=document.getElementById(`opt-${i}`);
+    const ol=document.getElementById(`ol-${i}`);
+    btn.disabled=true;
+    if(i===q.answer){btn.classList.add('correct');ol.textContent='✓';}
+    else if(i===idx){btn.classList.add('wrong');ol.textContent='✗';}
+  });
+  // Flash
+  const fl=document.getElementById('flashOverlay');
+  fl.style.cssText=`opacity:1;background:${correct?'rgba(16,185,129,.14)':'rgba(239,68,68,.14)'}`;
+  setTimeout(()=>{fl.style.opacity='0';},500);
+  // XP
+  let gained=0;
+  if(correct){
+    gained=100;
+    if(G.timeLeft>=15){gained+=60;G.speedUnlocked=true;}
+    else if(G.timeLeft>=10)gained+=30;
+    G.sessionCorrect++;
+  } else {
+    G.lives--;
+    updateHud();
+    // Shake
+    const qi=document.querySelector('.quiz-inner');
+    qi.style.animation='shake .4s ease';
+    setTimeout(()=>{qi.style.animation='';},400);
+  }
+  G.levelXp+=gained; G.totalXp+=gained;
+  updateHud();
+  // Explanation
+  const label=idx===-1?'⏰ Time\'s Up!':correct?'✅ Correct!':'❌ Incorrect';
+  const cls=correct?'qe-correct':'qe-wrong'; const lc=correct?'c':'w';
+  document.getElementById('qExpl').innerHTML=`<div class="quiz-explanation ${cls}"><div class="qe-label ${lc}">${label}</div><div class="qe-text">${q.explanation}</div></div>`;
+  setTimeout(()=>advance(correct),2400);
+}
+function advance(correct){
+  const w=WORLDS[G.worldIdx];
+  if(G.lives<=0&&!correct){
+    document.getElementById('goWorldName').textContent=w.title;
+    showScreen('gameover');
+    return;
+  }
+  const next=G.qIdx+1;
+  if(next>=w.questions.length){
+    finishLevel();
+  } else {
+    G.qIdx=next;
+    renderQuestion();
+  }
+}
+function useHint(){
+  if(G.hintUsed||G.revealed)return;
+  const q=WORLDS[G.worldIdx].questions[G.qIdx];
+  const wrong=[0,1,2,3].filter(i=>i!==q.answer&&!G.eliminated.includes(i));
+  if(!wrong.length)return;
+  const pick=wrong[Math.floor(Math.random()*wrong.length)];
+  G.eliminated.push(pick);
+  G.hintUsed=true;
+  G.totalXp=Math.max(0,G.totalXp-50);
+  updateHud();
+  document.getElementById(`opt-${pick}`).classList.add('elim');
+  const hb=document.getElementById('hintBtn');
+  hb.disabled=true; hb.style.color='var(--dim)';
+}
+function retryQuiz(){startQuiz();}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEVEL COMPLETE
+// ═══════════════════════════════════════════════════════════════════════════════
+function calcStars(correct,total,lives){
+  const p=correct/total;
+  if(p===1&&lives===3)return 3;
+  if(p>=0.7)return 2;
+  return 1;
+}
+function tryBadge(id){
+  const b=ALL_BADGES.find(x=>x.id===id);
+  if(b&&!G.badges.find(x=>x.id===id)&&!G.newBadges.find(x=>x.id===id)){G.newBadges.push(b);}
+}
+function finishLevel(){
+  const w=WORLDS[G.worldIdx];
+  const stars=calcStars(G.sessionCorrect,w.questions.length,G.lives);
+  if(!G.completedWorlds.includes(G.worldIdx))G.completedWorlds.push(G.worldIdx);
+  G.stars[G.worldIdx]=Math.max(G.stars[G.worldIdx]||0,stars);
+  G.newBadges=[];
+  if(G.completedWorlds.length===1)tryBadge('first_victory');
+  if(G.speedUnlocked)tryBadge('speed_demon');
+  if(G.sessionCorrect===w.questions.length&&G.lives===3)tryBadge('flawless');
+  if(G.lives===1)tryBadge('survivor');
+  if(G.completedWorlds.length>=3)tryBadge('halfway');
+  if(w.isBoss)tryBadge('champion');
+  G.newBadges.forEach(b=>G.badges.push(b));
+  // Render
+  document.getElementById('lcIcon').textContent=w.isBoss?'🏆':'🎉';
+  document.getElementById('lcSub').textContent=w.isBoss?'Quest Complete!':'Level Clear!';
+  document.getElementById('lcSub').style.color=w.color;
+  document.getElementById('lcTitle').textContent=w.title;
+  document.getElementById('lcStars').innerHTML=[1,2,3].map(s=>`<span style="opacity:${s<=stars?1:.12};filter:${s<=stars?'drop-shadow(0 0 8px var(--gold))':'none'}">${s<=stars?'⭐':'☆'}</span>`).join('');
+  document.getElementById('lcCorrect').textContent=`${G.sessionCorrect} / ${w.questions.length}`;
+  document.getElementById('lcXp').textContent=G.levelXp.toLocaleString();
+  document.getElementById('lcLives').textContent=G.lives;
+  const nbWrap=document.getElementById('lcNewBadges');
+  if(G.newBadges.length>0){
+    nbWrap.style.display='block';
+    document.getElementById('lcNbRow').innerHTML=G.newBadges.map(b=>`
+      <div class="lc-nb-chip"><span>${b.icon}</span><div><div class="lc-nb-name">${b.name}</div><div class="lc-nb-desc">${b.desc}</div></div></div>
+    `).join('');
+  } else nbWrap.style.display='none';
+  const btn=document.getElementById('lcBtn');
+  btn.textContent=w.isBoss?'View Final Results 🏆':'Continue Journey →';
+  btn.style.background=`linear-gradient(135deg,${w.color},${w.color}bb)`;
+  showScreen('levelcomplete');
+}
+function levelContinue(){
+  if(WORLDS[G.worldIdx].isBoss)showFinalResults();
+  else goMap();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FINAL RESULTS
+// ═══════════════════════════════════════════════════════════════════════════════
+function showFinalResults(){
+  const totalStars=Object.values(G.stars).reduce((a,b)=>a+b,0);
+  const acc=G.totalAnswered>0?Math.round((G.totalCorrect/G.totalAnswered)*100):0;
+  const rank=G.totalXp>=4500?'🥇 Grandmaster Closer':G.totalXp>=2800?'🥈 Expert Salesperson':'🥉 Rising Sales Star';
+  document.getElementById('finalRank').textContent=rank;
+  document.getElementById('fXp').textContent=G.totalXp.toLocaleString();
+  document.getElementById('fStars').textContent=`${totalStars} / ${WORLDS.length*3}`;
+  document.getElementById('fAccuracy').textContent=`${acc}%`;
+  document.getElementById('fBadges').textContent=`${G.badges.length} / ${ALL_BADGES.length}`;
+  document.getElementById('allBadgesGrid').innerHTML=ALL_BADGES.map(b=>{
+    const earned=G.badges.find(e=>e.id===b.id);
+    return `<div class="ab-item ${earned?'earned':'unearned'}"><span>${b.icon}</span><span class="ab-name">${b.name}</span></div>`;
+  }).join('');
+  showScreen('final');
+}
+function replayGame(){
+  resetGame();
+  goMap();
+}
+</script>
+</body>
+</html>
