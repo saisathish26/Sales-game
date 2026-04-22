@@ -19,11 +19,23 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 
 /* ── LAYOUT ── */
 #app{min-height:100vh;position:relative}
-.screen{display:none;min-height:100vh;flex-direction:column}
+.screen{display:none;min-height:100vh;flex-direction:column;position:relative;z-index:2}
 .screen.active{display:flex}
 
+/* ── KINGDOM OVERLAY ── */
+#kingdomOverlay{
+  position:fixed;inset:0;pointer-events:none;z-index:10;overflow:hidden;
+  mix-blend-mode:screen;
+}
+#kingdomSvg{
+  position:absolute;bottom:0;left:0;width:100%;height:100%;
+  opacity:0.55;transition:opacity .4s ease;
+}
+#kingdomOverlay.dimmed #kingdomSvg{opacity:0.12;}
+
 /* ── STARS ── */
-#starsBg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#starsBg{position:fixed;inset:0;pointer-events:none;z-index:9;overflow:hidden;mix-blend-mode:screen;opacity:1;transition:opacity .4s ease;}
+body.dimmed-bg #starsBg{opacity:0.25;}
 .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 3s infinite alternate}
 @keyframes twinkle{from{opacity:.1}to{opacity:.7}}
 
@@ -49,35 +61,43 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
    WELCOME SCREEN
 ══════════════════════════════════════ */
 #screen-welcome{
-  background:radial-gradient(ellipse at 50% 20%,#2a1f5e 0%,#0d0b1e 60%);
-  align-items:center;justify-content:center;text-align:center;padding:32px 20px;
+  background:radial-gradient(ellipse at 50% 20%,rgba(42,31,94,0.85) 0%,rgba(13,11,30,0.88) 60%);
+  align-items:center;justify-content:center;text-align:center;padding:24px 20px;
+  height:100vh;overflow:hidden;
 }
-.welcome-wrap{position:relative;z-index:1;animation:fadeUp .9s ease both;max-width:520px}
-.welcome-crest{font-size:68px;filter:drop-shadow(0 0 24px var(--gold));margin-bottom:12px;animation:pulse 3s infinite}
+.welcome-wrap{
+  position:relative;z-index:1;animation:fadeUp .9s ease both;
+  width:100%;max-width:600px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;
+}
+.welcome-crest{font-size:clamp(42px,7vw,64px);filter:drop-shadow(0 0 24px var(--gold));margin-bottom:6px;animation:pulse 3s infinite}
 .welcome-title{
-  font-family:'Cinzel',serif;font-size:clamp(28px,7vw,54px);font-weight:900;
+  font-family:'Cinzel',serif;font-size:clamp(26px,6vw,50px);font-weight:900;
   background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   letter-spacing:4px;text-transform:uppercase;line-height:1.05;
 }
-.welcome-tagline{font-family:'Cinzel',serif;font-size:12px;letter-spacing:5px;color:#b8b0d8;text-transform:uppercase;margin:10px 0 28px;opacity:.8}
+.welcome-tagline{font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;color:#b8b0d8;text-transform:uppercase;margin:8px 0 16px;opacity:.8}
 .welcome-story{
-  background:rgba(255,255,255,.04);border:1px solid rgba(245,158,11,.22);
-  border-radius:var(--radius);padding:22px 26px;margin-bottom:28px;
-  color:#ccc8e8;font-size:15px;line-height:1.85;font-style:italic;
+  background:rgba(15,11,40,0.82);border:1px solid rgba(245,158,11,.45);
+  border-radius:var(--radius);padding:16px 22px;margin-bottom:16px;
+  color:#e8e4f8;font-size:clamp(12px,1.8vw,14px);line-height:1.75;font-style:italic;
+  backdrop-filter:blur(12px);box-shadow:0 4px 32px rgba(0,0,0,.5);width:100%;
 }
-.welcome-features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px}
+.welcome-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;width:100%}
 .feature-card{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;padding:14px;text-align:left;
+  background:rgba(12,9,36,0.80);border:1px solid rgba(245,158,11,.30);
+  border-radius:12px;padding:11px 13px;text-align:left;
+  backdrop-filter:blur(10px);box-shadow:0 2px 16px rgba(0,0,0,.45);
 }
-.feature-icon{font-size:22px;margin-bottom:6px}
-.feature-title{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);letter-spacing:1px;margin-bottom:3px}
-.feature-desc{color:var(--muted);font-size:12px;line-height:1.5}
+.feature-icon{font-size:18px;margin-bottom:4px}
+.feature-title{font-family:'Cinzel',serif;font-size:11px;color:var(--gold2);letter-spacing:1px;margin-bottom:2px}
+.feature-desc{color:#c4bfe0;font-size:11px;line-height:1.45}
 .btn-start{
   background:linear-gradient(135deg,var(--gold),#d97706);border:none;
-  border-radius:50px;padding:16px 52px;color:#1a1206;
-  font-family:'Cinzel',serif;font-weight:700;font-size:16px;letter-spacing:2px;
+  border-radius:50px;padding:14px 48px;color:#1a1206;
+  font-family:'Cinzel',serif;font-weight:700;font-size:15px;letter-spacing:2px;
   box-shadow:0 0 32px rgba(245,158,11,.45);transition:all .2s;
 }
 .btn-start:hover{transform:scale(1.05);box-shadow:0 0 44px rgba(245,158,11,.65)}
@@ -85,19 +105,20 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 /* ══════════════════════════════════════
    MAP SCREEN
 ══════════════════════════════════════ */
-#screen-map{background:linear-gradient(170deg,var(--deep) 0%,#130f2e 100%);align-items:stretch}
-.map-header{padding:20px 24px;text-align:center;border-bottom:1px solid rgba(245,158,11,.15);flex-shrink:0}
+#screen-map{background:linear-gradient(170deg,rgba(13,11,30,0.88) 0%,rgba(19,15,46,0.88) 100%);align-items:stretch}
+.map-header{padding:20px 24px;text-align:center;border-bottom:1px solid rgba(245,158,11,.20);flex-shrink:0;background:rgba(10,8,28,0.88);backdrop-filter:blur(12px)}
 .map-lbl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:.8}
 .map-h1{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:#fff;margin:4px 0}
 .map-xp-bar{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--gold2);font-family:'Cinzel',serif;font-size:13px;margin-top:6px}
-.map-body{flex:1;overflow-y:auto;padding:24px 16px 48px}
+.map-body{flex:1;overflow-y:auto;padding:24px 16px 48px;background:transparent}
 .map-worlds{display:flex;flex-direction:column;align-items:center;gap:0;max-width:440px;margin:0 auto}
 .world-node{width:100%;position:relative}
 .world-card{
-  width:100%;border:2px solid rgba(255,255,255,.08);border-radius:16px;
+  width:100%;border:2px solid rgba(255,255,255,.15);border-radius:16px;
   padding:16px 20px;display:flex;align-items:center;gap:14px;
-  background:rgba(255,255,255,.03);transition:all .3s;text-align:left;
-  font-family:inherit;color:var(--text);
+  background:rgba(14,11,38,0.82);transition:all .3s;text-align:left;
+  font-family:inherit;color:var(--text);backdrop-filter:blur(10px);
+  box-shadow:0 2px 16px rgba(0,0,0,.4);
 }
 .world-card.unlocked{cursor:pointer}
 .world-card.unlocked:hover{transform:translateX(4px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
@@ -105,7 +126,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 .world-card.completed{box-shadow:inset 0 0 0 1px rgba(245,158,11,.3)}
 .world-emoji{font-size:32px;flex-shrink:0}
 .world-meta{flex:1;min-width:0}
-.world-num{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+.world-num{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:1;color:#b8b4d8;margin-bottom:2px}
 .world-name{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3}
 .world-stars{display:flex;gap:2px;font-size:14px}
 .world-badge{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:20px;flex-shrink:0}
@@ -123,7 +144,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 /* ══════════════════════════════════════
    LEARN SCREEN
 ══════════════════════════════════════ */
-#screen-learn{background:linear-gradient(160deg,var(--deep) 0%,#130f2e 100%);align-items:stretch}
+#screen-learn{background:linear-gradient(160deg,rgba(13,11,30,0.88) 0%,rgba(19,15,46,0.88) 100%);align-items:stretch}
 .learn-header{padding:14px 20px;background:rgba(13,11,30,.9);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20;flex-shrink:0}
 .learn-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .learn-back{background:transparent;border:none;color:var(--muted);font-size:18px;padding:0 4px;cursor:pointer;transition:color .2s}
@@ -140,22 +161,23 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 }
 .learn-tab.active{color:var(--text);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.06)}
 .learn-tab.done{border-color:var(--green);color:var(--green)}
-.learn-body{flex:1;overflow-y:auto;padding:20px 16px 100px}
+.learn-body{flex:1;overflow-y:auto;padding:20px 16px 100px;background:transparent}
 .learn-content{max-width:640px;margin:0 auto;animation:fadeUp .5s ease both}
 .learn-world-banner{
   border-radius:16px;padding:20px 22px;margin-bottom:24px;
   display:flex;align-items:center;gap:16px;
+  backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.4);
 }
 .learn-world-emoji{font-size:44px;flex-shrink:0}
 .learn-world-info{}
 .learn-world-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-bottom:4px}
 .learn-world-title{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff;line-height:1.2}
 .learn-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-.learn-section-sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.6}
+.learn-section-sub{color:#c0bcd8;font-size:13px;margin-bottom:18px;line-height:1.6}
 /* Content cards */
-.content-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.content-card{background:rgba(14,11,38,0.88);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);padding:20px;margin-bottom:14px;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .content-card-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.content-card p{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:10px}
+.content-card p{color:#c8c4e0;font-size:14px;line-height:1.8;margin-bottom:10px}
 .content-card p:last-child{margin-bottom:0}
 .content-card strong{color:var(--text)}
 /* Highlight box */
@@ -163,45 +185,47 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
   border-radius:12px;padding:16px 18px;margin-bottom:14px;
   border-left:4px solid;
 }
-.highlight-box.tip{background:rgba(16,185,129,.08);border-color:var(--green)}
+.highlight-box.tip{background:rgba(10,40,28,0.85);border-color:var(--green);backdrop-filter:blur(8px)}
 .highlight-box.tip .hb-label{color:var(--green)}
-.highlight-box.warning{background:rgba(245,158,11,.07);border-color:var(--gold)}
+.highlight-box.warning{background:rgba(40,28,8,0.85);border-color:var(--gold);backdrop-filter:blur(8px)}
 .highlight-box.warning .hb-label{color:var(--gold)}
-.highlight-box.example{background:rgba(59,130,246,.08);border-color:var(--blue)}
+.highlight-box.example{background:rgba(10,24,50,0.85);border-color:var(--blue);backdrop-filter:blur(8px)}
 .highlight-box.example .hb-label{color:var(--blue)}
 .hb-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.hb-text{color:var(--muted);font-size:13px;line-height:1.75}
+.hb-text{color:#ccc8e4;font-size:13px;line-height:1.75}
 .hb-text strong{color:var(--text)}
 /* Key points list */
 .key-points{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
 .key-points li{
-  background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:10px;
-  padding:12px 16px;display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--muted);line-height:1.6;
+  background:rgba(14,11,38,0.85);border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#ccc8e4;line-height:1.6;
+  backdrop-filter:blur(8px);
 }
 .key-points li .kp-icon{font-size:16px;flex-shrink:0;margin-top:1px}
 .key-points li strong{color:var(--text)}
 /* Technique card */
 .technique-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-.technique-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px}
+.technique-card{background:rgba(14,11,38,0.85);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:16px;backdrop-filter:blur(8px);}
 .tc-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .tc-icon{font-size:20px}
 .tc-name{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--text)}
-.tc-desc{color:var(--muted);font-size:13px;line-height:1.7}
-.tc-example{background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;margin-top:8px;color:#a8b8d0;font-size:12px;line-height:1.6;font-style:italic}
+.tc-desc{color:#ccc8e4;font-size:13px;line-height:1.7}
+.tc-example{background:rgba(255,255,255,.06);border-radius:8px;padding:10px 12px;margin-top:8px;color:#c0ccd8;font-size:12px;line-height:1.6;font-style:italic;border-left:3px solid rgba(245,158,11,.3)}
 /* Summary box */
 .summary-box{
-  background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.04));
-  border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:20px;margin-bottom:14px;
+  background:rgba(30,18,6,0.88);
+  border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:20px;margin-bottom:14px;
+  backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.45);
 }
 .summary-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .summary-items{display:flex;flex-direction:column;gap:6px}
-.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);line-height:1.5}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#ccc8e4;line-height:1.5}
 .summary-item .si-dot{color:var(--gold);font-size:16px;flex-shrink:0;line-height:1.3}
 /* Bottom CTA */
 .learn-footer{
   position:fixed;bottom:0;left:0;right:0;padding:14px 20px;
   background:rgba(13,11,30,.95);border-top:1px solid rgba(255,255,255,.1);
-  backdrop-filter:blur(12px);z-index:25;display:flex;gap:12px;align-items:center;justify-content:center;
+  backdrop-filter:blur(12px);z-index:35;display:flex;gap:12px;align-items:center;justify-content:center;
 }
 .btn-quiz{
   background:linear-gradient(135deg,var(--gold),#d97706);border:none;
@@ -216,7 +240,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 /* ══════════════════════════════════════
    QUIZ SCREEN
 ══════════════════════════════════════ */
-#screen-quiz{background:linear-gradient(160deg,var(--deep),#130f2e);align-items:stretch}
+#screen-quiz{background:linear-gradient(160deg,rgba(13,11,30,0.88),rgba(19,15,46,0.88));align-items:stretch}
 .quiz-inner{flex:1;display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px;max-width:560px;width:100%;margin:0 auto}
 .quiz-top{width:100%;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .quiz-counter{font-family:'Cinzel',serif;font-size:12px;color:var(--muted)}
@@ -227,14 +251,15 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 .timer-bar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
 .timer-fill{height:100%;border-radius:99px;transition:width 1s linear}
 .timer-num{font-family:'Cinzel',serif;font-weight:700;font-size:17px;min-width:24px;text-align:right}
-.quiz-qcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;margin-bottom:16px;width:100%;text-align:center}
+.quiz-qcard{background:rgba(12,9,36,0.90);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:22px 24px;margin-bottom:16px;width:100%;text-align:center;backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .quiz-hint-ref{font-family:'Cinzel',serif;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;opacity:.7}
 .quiz-qtext{color:#fff;font-family:'Cinzel',serif;font-size:clamp(14px,3vw,17px);font-weight:600;line-height:1.6}
 .quiz-opts{display:flex;flex-direction:column;gap:9px;width:100%;margin-bottom:14px}
 .quiz-opt{
-  background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.12);
+  background:rgba(12,9,36,0.84);border:2px solid rgba(255,255,255,.18);
   border-radius:12px;padding:13px 18px;display:flex;align-items:center;gap:14px;
-  transition:all .25s;text-align:left;width:100%;color:var(--text);
+  transition:all .25s;text-align:left;width:100%;color:#e8e4f8;
+  backdrop-filter:blur(8px);
 }
 .quiz-opt:not(:disabled):hover{border-color:var(--gold);background:rgba(245,158,11,.07);cursor:pointer}
 .quiz-opt:disabled{cursor:default}
@@ -271,18 +296,23 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
    LEVEL COMPLETE
 ══════════════════════════════════════ */
 #screen-levelcomplete{
-  background:linear-gradient(160deg,var(--deep),#130f2e);
+  background:linear-gradient(160deg,rgba(13,11,30,0.88),rgba(19,15,46,0.88));
   align-items:center;justify-content:center;text-align:center;padding:28px 20px;
 }
-.lc-wrap{max-width:460px;width:100%;animation:fadeUp .6s ease both}
+.lc-wrap{
+  max-width:460px;width:100%;animation:fadeUp .6s ease both;
+  background:rgba(12,9,36,0.82);border:1px solid rgba(245,158,11,.25);
+  border-radius:20px;padding:32px 24px;backdrop-filter:blur(14px);
+  box-shadow:0 8px 40px rgba(0,0,0,.55);
+}
 .lc-icon{font-size:64px;margin-bottom:8px}
 .lc-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;opacity:.9}
 .lc-title{color:#fff;font-family:'Cinzel',serif;font-size:22px;font-weight:700;margin-bottom:20px}
 .lc-stars{display:flex;gap:8px;justify-content:center;font-size:36px;margin-bottom:24px}
-.lc-stats{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:18px 32px;margin-bottom:20px}
+.lc-stats{background:rgba(14,11,38,0.88);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:18px 32px;margin-bottom:20px;backdrop-filter:blur(10px)}
 .lc-stat-row{display:flex;justify-content:space-between;gap:24px;margin-bottom:10px;align-items:center}
 .lc-stat-row:last-child{margin-bottom:0}
-.lc-stat-label{color:var(--muted);font-family:'Cinzel',serif;font-size:12px}
+.lc-stat-label{color:#c8c4e0;font-family:'Cinzel',serif;font-size:12px}
 .lc-stat-val{color:#fff;font-family:'Cinzel',serif;font-size:15px;font-weight:700}
 .lc-new-badges{margin-bottom:20px}
 .lc-nb-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
@@ -290,7 +320,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 .lc-nb-chip{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px}
 .lc-nb-chip span{font-size:18px}
 .lc-nb-name{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);text-align:left}
-.lc-nb-desc{color:var(--muted);font-size:11px;text-align:left}
+.lc-nb-desc{color:#b8b4d4;font-size:11px;text-align:left}
 .btn-continue{
   background:linear-gradient(135deg,var(--gold),#d97706);border:none;
   border-radius:50px;padding:13px 40px;color:#1a1206;
@@ -303,19 +333,28 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
    GAME OVER
 ══════════════════════════════════════ */
 #screen-gameover{
-  background:linear-gradient(160deg,#180000,#2a0000);
+  background:linear-gradient(160deg,rgba(24,0,0,0.90),rgba(42,0,0,0.90));
   align-items:center;justify-content:center;text-align:center;padding:32px 20px;
 }
-.go-wrap{max-width:380px;animation:fadeUp .6s ease both}
+.go-wrap{
+  max-width:380px;animation:fadeUp .6s ease both;
+  background:rgba(30,4,4,0.88);border:1px solid rgba(239,68,68,.30);
+  border-radius:18px;padding:32px 28px;backdrop-filter:blur(14px);
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+}
 
 /* ══════════════════════════════════════
    FINAL RESULTS
 ══════════════════════════════════════ */
 #screen-final{
-  background:radial-gradient(ellipse at 50% 20%,#2a1f5e 0%,#0d0b1e 70%);
+  background:radial-gradient(ellipse at 50% 20%,rgba(42,31,94,0.85) 0%,rgba(13,11,30,0.88) 70%);
   align-items:center;justify-content:center;padding:32px 20px;overflow-y:auto;
 }
-.final-wrap{max-width:480px;width:100%;text-align:center;animation:fadeUp .7s ease both;padding:20px 0}
+.final-wrap{
+  max-width:480px;width:100%;text-align:center;animation:fadeUp .7s ease both;padding:20px;
+  background:rgba(12,9,36,0.80);border:1px solid rgba(245,158,11,.22);
+  border-radius:20px;backdrop-filter:blur(14px);box-shadow:0 8px 40px rgba(0,0,0,.5);
+}
 .final-trophy{font-size:80px;filter:drop-shadow(0 0 22px var(--gold));margin-bottom:8px}
 .final-title{
   font-family:'Cinzel',serif;font-size:clamp(22px,5vw,38px);font-weight:900;
@@ -325,16 +364,16 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 }
 .final-sub{color:#c4b5fd;font-family:'Cinzel',serif;font-size:13px;margin-bottom:4px}
 .final-rank{color:var(--gold2);font-family:'Cinzel',serif;font-size:19px;font-weight:700;margin-bottom:24px}
-.final-stats{background:var(--card);border:1px solid rgba(245,158,11,.22);border-radius:var(--radius);padding:22px 32px;margin-bottom:22px}
+.final-stats{background:rgba(14,11,38,0.88);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:22px 32px;margin-bottom:22px;backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .final-row{display:flex;justify-content:space-between;gap:32px;margin-bottom:12px;align-items:center}
 .final-row:last-child{margin-bottom:0}
-.final-row-label{color:var(--muted);font-family:'Cinzel',serif;font-size:13px}
+.final-row-label{color:#c8c4e0;font-family:'Cinzel',serif;font-size:13px}
 .final-row-val{color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700}
 .all-badges-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
 .all-badges-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:26px}
 .ab-item{border-radius:10px;padding:7px 13px;display:flex;align-items:center;gap:7px}
 .ab-item.earned{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4)}
-.ab-item.unearned{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);opacity:.3}
+.ab-item.unearned{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);opacity:.45}
 .ab-item span{font-size:17px}
 .ab-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold2)}
 .ab-item.unearned .ab-name{color:var(--dim)}
@@ -356,6 +395,123 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
 </head>
 <body>
 <div id="starsBg"></div>
+
+<!-- ══ KINGDOM OVERLAY ══ -->
+<div id="kingdomOverlay" aria-hidden="true">
+<svg id="kingdomSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" preserveAspectRatio="xMidYMax slice">
+  <!-- Ground -->
+  <rect x="0" y="480" width="960" height="120" fill="rgba(15,10,35,0.55)"/>
+  <!-- Rolling hills -->
+  <ellipse cx="180" cy="490" rx="240" ry="60" fill="rgba(20,14,50,0.45)"/>
+  <ellipse cx="780" cy="495" rx="260" ry="55" fill="rgba(18,12,45,0.45)"/>
+  <!-- ── FAR-LEFT TOWER ── -->
+  <rect x="30" y="320" width="44" height="170" fill="rgba(25,18,60,0.55)"/>
+  <rect x="22" y="310" width="60" height="18" fill="rgba(30,22,70,0.55)"/>
+  <!-- battlement -->
+  <rect x="22" y="298" width="10" height="14" fill="rgba(30,22,70,0.55)"/>
+  <rect x="38" y="298" width="10" height="14" fill="rgba(30,22,70,0.55)"/>
+  <rect x="54" y="298" width="10" height="14" fill="rgba(30,22,70,0.55)"/>
+  <rect x="70" y="298" width="10" height="14" fill="rgba(30,22,70,0.55)"/>
+  <!-- cone roof -->
+  <polygon points="52,240 22,310 82,310" fill="rgba(35,25,80,0.55)"/>
+  <!-- window -->
+  <rect x="46" y="355" width="12" height="18" rx="6" fill="rgba(245,158,11,0.18)"/>
+  <!-- ── MAIN CASTLE ── -->
+  <!-- main body -->
+  <rect x="320" y="260" width="320" height="220" fill="rgba(22,16,55,0.55)"/>
+  <!-- crenellations top -->
+  <rect x="315" y="248" width="330" height="16" fill="rgba(28,20,65,0.55)"/>
+  <rect x="315" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="347" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="379" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="411" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="443" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="475" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="507" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="539" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="571" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <rect x="603" y="230" width="20" height="20" fill="rgba(28,20,65,0.55)"/>
+  <!-- centre tower left -->
+  <rect x="340" y="180" width="72" height="100" fill="rgba(25,18,62,0.55)"/>
+  <rect x="332" y="170" width="88" height="14" fill="rgba(30,22,70,0.55)"/>
+  <rect x="332" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="354" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="376" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="398" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <polygon points="376,80 332,152 420,152" fill="rgba(35,25,80,0.55)"/>
+  <!-- flag left tower -->
+  <line x1="376" y1="80" x2="376" y2="50" stroke="rgba(245,158,11,0.55)" stroke-width="2"/>
+  <polygon points="376,50 400,60 376,70" fill="rgba(245,158,11,0.40)"/>
+  <!-- centre tower right -->
+  <rect x="548" y="180" width="72" height="100" fill="rgba(25,18,62,0.55)"/>
+  <rect x="540" y="170" width="88" height="14" fill="rgba(30,22,70,0.55)"/>
+  <rect x="540" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="562" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="584" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <rect x="606" y="150" width="14" height="22" fill="rgba(30,22,70,0.55)"/>
+  <polygon points="584,80 540,152 628,152" fill="rgba(35,25,80,0.55)"/>
+  <!-- flag right tower -->
+  <line x1="584" y1="80" x2="584" y2="50" stroke="rgba(245,158,11,0.55)" stroke-width="2"/>
+  <polygon points="584,50 608,60 584,70" fill="rgba(245,158,11,0.40)"/>
+  <!-- gate arch -->
+  <rect x="428" y="370" width="104" height="110" rx="52" fill="rgba(12,8,30,0.65)"/>
+  <rect x="436" y="400" width="88" height="80" fill="rgba(12,8,30,0.65)"/>
+  <!-- portcullis bars -->
+  <line x1="452" y1="372" x2="452" y2="480" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="468" y1="372" x2="468" y2="480" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="484" y1="372" x2="484" y2="480" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="500" y1="372" x2="500" y2="480" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="516" y1="372" x2="516" y2="480" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="436" y1="400" x2="524" y2="400" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="436" y1="420" x2="524" y2="420" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <line x1="436" y1="440" x2="524" y2="440" stroke="rgba(245,158,11,0.18)" stroke-width="3"/>
+  <!-- castle windows -->
+  <rect x="362" y="290" width="24" height="34" rx="12" fill="rgba(245,158,11,0.15)"/>
+  <rect x="574" y="290" width="24" height="34" rx="12" fill="rgba(245,158,11,0.15)"/>
+  <rect x="362" y="350" width="24" height="34" rx="12" fill="rgba(245,158,11,0.15)"/>
+  <rect x="574" y="350" width="24" height="34" rx="12" fill="rgba(245,158,11,0.15)"/>
+  <!-- ── RIGHT TOWER ── -->
+  <rect x="886" y="330" width="44" height="160" fill="rgba(25,18,60,0.55)"/>
+  <rect x="878" y="320" width="60" height="16" fill="rgba(30,22,70,0.55)"/>
+  <rect x="878" y="304" width="10" height="18" fill="rgba(30,22,70,0.55)"/>
+  <rect x="894" y="304" width="10" height="18" fill="rgba(30,22,70,0.55)"/>
+  <rect x="910" y="304" width="10" height="18" fill="rgba(30,22,70,0.55)"/>
+  <rect x="926" y="304" width="10" height="18" fill="rgba(30,22,70,0.55)"/>
+  <polygon points="908,255 878,322 938,322" fill="rgba(35,25,80,0.55)"/>
+  <rect x="902" y="368" width="12" height="18" rx="6" fill="rgba(245,158,11,0.18)"/>
+  <!-- ── BRIDGE / DRAWBRIDGE ── -->
+  <rect x="428" y="478" width="104" height="16" fill="rgba(30,22,65,0.55)"/>
+  <line x1="428" y1="478" x2="420" y2="500" stroke="rgba(245,158,11,0.20)" stroke-width="2"/>
+  <line x1="532" y1="478" x2="540" y2="500" stroke="rgba(245,158,11,0.20)" stroke-width="2"/>
+  <!-- ── TREES ── -->
+  <rect x="218" y="430" width="10" height="50" fill="rgba(18,12,45,0.50)"/>
+  <polygon points="223,360 196,432 250,432" fill="rgba(20,14,52,0.50)"/>
+  <polygon points="223,385 200,438 246,438" fill="rgba(22,16,56,0.50)"/>
+  <rect x="258" y="440" width="8" height="40" fill="rgba(18,12,45,0.50)"/>
+  <polygon points="262,380 240,442 284,442" fill="rgba(20,14,52,0.50)"/>
+  <rect x="690" y="435" width="10" height="45" fill="rgba(18,12,45,0.50)"/>
+  <polygon points="695,368 668,437 722,437" fill="rgba(20,14,52,0.50)"/>
+  <rect x="728" y="442" width="8" height="38" fill="rgba(18,12,45,0.50)"/>
+  <polygon points="732,380 710,444 754,444" fill="rgba(20,14,52,0.50)"/>
+  <!-- ── MOON ── -->
+  <circle cx="820" cy="80" r="46" fill="rgba(255,248,220,0.12)"/>
+  <circle cx="842" cy="68" r="38" fill="rgba(13,11,30,0.60)"/>
+  <!-- moonlight halo -->
+  <circle cx="820" cy="80" r="60" fill="none" stroke="rgba(255,248,200,0.05)" stroke-width="18"/>
+  <!-- ── DISTANT MOUNTAINS ── -->
+  <polygon points="0,420 80,300 160,420" fill="rgba(16,11,42,0.40)"/>
+  <polygon points="60,420 160,280 260,420" fill="rgba(18,13,46,0.40)"/>
+  <polygon points="700,420 800,290 900,420" fill="rgba(16,11,42,0.40)"/>
+  <polygon points="760,420 880,270 960,420" fill="rgba(18,13,46,0.40)"/>
+  <!-- ── TORCH GLOW LEFT ── -->
+  <circle cx="322" cy="280" r="18" fill="rgba(245,158,11,0.10)"/>
+  <circle cx="322" cy="280" r="8" fill="rgba(245,158,11,0.22)"/>
+  <!-- ── TORCH GLOW RIGHT ── -->
+  <circle cx="638" cy="280" r="18" fill="rgba(245,158,11,0.10)"/>
+  <circle cx="638" cy="280" r="8" fill="rgba(245,158,11,0.22)"/>
+</svg>
+</div>
+
 <div class="flash-overlay" id="flashOverlay"></div>
 
 <div id="hud">
@@ -399,7 +555,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
         <div class="feature-desc">Collect achievements for speed, accuracy, and mastery.</div>
       </div>
     </div>
-    <button class="btn-start" onclick="goMap()">Begin Your Quest ⚔️</button>
+    <button class="btn-start" onclick="_AC.swordDraw();goMap()">Begin Your Quest ⚔️</button>
   </div>
 </div>
 
@@ -436,7 +592,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
     <div>
       <div class="learn-read-note" id="learnReadNote">Read all sections to unlock the quiz</div>
     </div>
-    <button class="btn-quiz" id="learnQuizBtn" disabled onclick="startQuiz()">Take the Quiz 🎯</button>
+    <button class="btn-quiz" id="learnQuizBtn" disabled onclick="_AC.sword();startQuiz()">Take the Quiz 🎯</button>
   </div>
 </div>
 
@@ -458,7 +614,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
     </div>
     <div class="quiz-opts" id="qOpts"></div>
     <div id="qExpl"></div>
-    <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Use Hint (50 XP)</button>
+    <button class="hint-btn" id="hintBtn" onclick="_AC.scroll();useHint()">💡 Use Hint (50 XP)</button>
   </div>
 </div>
 
@@ -478,7 +634,7 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
       <div class="lc-nb-title">🏅 New Badges Unlocked!</div>
       <div class="lc-nb-row" id="lcNbRow"></div>
     </div>
-    <button class="btn-continue" id="lcBtn" onclick="levelContinue()"></button>
+    <button class="btn-continue" id="lcBtn" onclick="_AC.coin();levelContinue()"></button>
   </div>
 </div>
 
@@ -487,15 +643,15 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
   <div class="go-wrap">
     <div style="font-size:68px;margin-bottom:12px">💀</div>
     <div style="color:var(--red);font-family:'Cinzel',serif;font-size:26px;font-weight:700;margin-bottom:8px">Defeated!</div>
-    <div style="color:var(--muted);font-family:'Cinzel',serif;font-size:13px;margin-bottom:6px">You ran out of lives in</div>
+    <div style="color:#c4b0b0;font-family:'Cinzel',serif;font-size:13px;margin-bottom:6px">You ran out of lives in</div>
     <div style="color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-bottom:12px" id="goWorldName"></div>
-    <div style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:28px;max-width:320px">
+    <div style="color:#c4b8b8;font-size:14px;line-height:1.7;margin-bottom:28px;max-width:320px">
       The scrolls of knowledge await you. Study them again — victory belongs to the persistent!
     </div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-ghost" onclick="goMap()">← Back to Map</button>
-      <button class="btn-ghost" onclick="reviewContent()" style="color:var(--gold);border-color:rgba(245,158,11,.3)">📖 Review Content</button>
-      <button class="btn-danger" onclick="retryQuiz()">⚔️ Retry Quiz</button>
+      <button class="btn-ghost" onclick="_AC.scroll();goMap()">← Back to Map</button>
+      <button class="btn-ghost" onclick="_AC.scroll();reviewContent()" style="color:var(--gold);border-color:rgba(245,158,11,.3)">📖 Review Content</button>
+      <button class="btn-danger" onclick="_AC.sword();retryQuiz()">⚔️ Retry Quiz</button>
     </div>
   </div>
 </div>
@@ -515,13 +671,248 @@ button{font-family:'Lora',Georgia,serif;cursor:pointer;outline:none;border:none}
     </div>
     <div class="all-badges-title">All Badges</div>
     <div class="all-badges-grid" id="allBadgesGrid"></div>
-    <button class="btn-continue" onclick="replayGame()">🔁 Play Again</button>
+    <button class="btn-continue" onclick="_AC.unlock();replayGame()">🔁 Play Again</button>
   </div>
 </div>
 
 </div><!-- /app -->
 
 <script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// SOUND EFFECTS — Web Audio API
+// ═══════════════════════════════════════════════════════════════════════════════
+const _AC = (()=>{
+  let ctx = null;
+  function get(){
+    if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
+
+  function playTone(freq, type, duration, gainVal, freqEnd){
+    const c = get();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    if(freqEnd !== undefined) o.frequency.exponentialRampToValueAtTime(freqEnd, c.currentTime + duration);
+    g.gain.setValueAtTime(gainVal, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+    o.start(c.currentTime);
+    o.stop(c.currentTime + duration);
+  }
+
+  function noise(duration, gainVal){
+    const c = get();
+    const buf = c.createBuffer(1, c.sampleRate * duration, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1);
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const g = c.createGain();
+    const flt = c.createBiquadFilter();
+    flt.type = 'bandpass'; flt.frequency.value = 800; flt.Q.value = 0.8;
+    src.connect(flt); flt.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(gainVal, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+    src.start(); src.stop(c.currentTime + duration);
+  }
+
+  return {
+    // ⚔️  Sword clash — metallic scrape + ring (used for quiz answer buttons)
+    sword(){
+      const c = get();
+      playTone(1200, 'sine',   0.55, 0.35, 900);
+      playTone(1800, 'sine',   0.40, 0.20, 1400);
+      playTone(2400, 'sine',   0.30, 0.12, 2000);
+      noise(0.12, 0.28);
+      playTone(90,  'sawtooth',0.18, 0.40, 60);
+    },
+    // 🗡️  Sword draw — cinematic unsheath whoosh + resonant blade sing
+    swordDraw(){
+      const c = get();
+      const t = c.currentTime;
+
+      // ── Unsheath whoosh: filtered noise sweeping high→low ──
+      const buf = c.createBuffer(1, c.sampleRate * 0.55, c.sampleRate);
+      const data = buf.getChannelData(0);
+      for(let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1);
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const flt = c.createBiquadFilter();
+      flt.type = 'bandpass';
+      flt.frequency.setValueAtTime(4800, t);
+      flt.frequency.exponentialRampToValueAtTime(400, t + 0.5);   // sweep down
+      flt.Q.value = 1.8;
+      const wGain = c.createGain();
+      wGain.gain.setValueAtTime(0, t);
+      wGain.gain.linearRampToValueAtTime(0.55, t + 0.06);         // fast attack
+      wGain.gain.linearRampToValueAtTime(0.0, t + 0.52);          // long fade
+      src.connect(flt); flt.connect(wGain); wGain.connect(c.destination);
+      src.start(t); src.stop(t + 0.56);
+
+      // ── Blade ring: pure metallic shimmer that sustains ──
+      [1480, 2200, 3100].forEach((freq, i) => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        const onset = t + 0.38 + i * 0.03;                        // ring starts as whoosh ends
+        g.gain.setValueAtTime(0, onset);
+        g.gain.linearRampToValueAtTime(0.22 - i * 0.05, onset + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, onset + 1.4 - i * 0.2);
+        o.start(onset); o.stop(onset + 1.5);
+      });
+
+      // ── Deep impact thud as blade clears scabbard ──
+      const thud = c.createOscillator(), tg = c.createGain();
+      thud.connect(tg); tg.connect(c.destination);
+      thud.type = 'sine';
+      thud.frequency.setValueAtTime(180, t + 0.36);
+      thud.frequency.exponentialRampToValueAtTime(55, t + 0.62);
+      tg.gain.setValueAtTime(0.45, t + 0.36);
+      tg.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      thud.start(t + 0.36); thud.stop(t + 0.75);
+    },
+    // 🛡️  Shield tap — dull thud
+    shield(){
+      playTone(160, 'sawtooth', 0.22, 0.45, 80);
+      playTone(320, 'square',   0.14, 0.20, 200);
+      noise(0.08, 0.15);
+    },
+    // ✅  Victory chime — ascending arpeggio
+    victory(){
+      const c = get();
+      const notes=[523,659,784,1047];
+      notes.forEach((f,i)=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type='sine'; o.frequency.value=f;
+        const t=c.currentTime+i*0.12;
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(0.28, t+0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, t+0.45);
+        o.start(t); o.stop(t+0.5);
+      });
+    },
+    // ❌  Wrong buzz
+    wrong(){
+      playTone(180, 'sawtooth', 0.28, 0.5, 100);
+      playTone(140, 'square',   0.22, 0.3, 80);
+    },
+    // 🪙  Coin / XP ding
+    coin(){
+      playTone(1047, 'sine', 0.18, 0.30, 1400);
+      playTone(1319, 'sine', 0.12, 0.18, 1800);
+    },
+    // 📜 Scroll / page turn — soft whoosh
+    scroll(){
+      noise(0.18, 0.12);
+      playTone(400, 'sine', 0.18, 0.08, 200);
+    },
+    // 🔓 Unlock — rising shimmer
+    unlock(){
+      playTone(440, 'sine', 0.35, 0.22, 880);
+      playTone(660, 'sine', 0.28, 0.15, 1320);
+    },
+    // 🏆 Epic orchestral victory swell — Quest Complete
+    triumph(){
+      const c = get();
+
+      // ── Choir/string pad layer (sine + triangle blend, slow attack) ──
+      function pad(freq, startT, dur, gain){
+        const o1 = c.createOscillator(), o2 = c.createOscillator();
+        const g1 = c.createGain(),       g2 = c.createGain();
+        o1.connect(g1); g1.connect(c.destination);
+        o2.connect(g2); g2.connect(c.destination);
+        o1.type = 'sine';     o1.frequency.value = freq;
+        o2.type = 'triangle'; o2.frequency.value = freq * 1.005; // slight detune = warmth
+        g1.gain.setValueAtTime(0, startT);
+        g1.gain.linearRampToValueAtTime(gain, startT + 0.28);       // slow attack
+        g1.gain.setValueAtTime(gain, startT + dur - 0.35);
+        g1.gain.linearRampToValueAtTime(0, startT + dur);            // gentle fade
+        g2.gain.setValueAtTime(0, startT);
+        g2.gain.linearRampToValueAtTime(gain * 0.6, startT + 0.32);
+        g2.gain.linearRampToValueAtTime(0, startT + dur);
+        o1.start(startT); o1.stop(startT + dur + 0.1);
+        o2.start(startT); o2.stop(startT + dur + 0.1);
+      }
+
+      // ── Bell/celesta sparkle (sine, sharp attack, long ring) ──
+      function bell(freq, startT, gain){
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine'; o.frequency.value = freq;
+        g.gain.setValueAtTime(gain, startT);
+        g.gain.exponentialRampToValueAtTime(0.001, startT + 1.8);
+        o.start(startT); o.stop(startT + 1.9);
+      }
+
+      // ── Heroic horn stab (sawtooth, punchy) ──
+      function horn(freq, startT, dur, gain){
+        const o = c.createOscillator(), g = c.createGain();
+        const filt = c.createBiquadFilter();
+        filt.type = 'lowpass'; filt.frequency.value = 2200;
+        o.connect(filt); filt.connect(g); g.connect(c.destination);
+        o.type = 'sawtooth'; o.frequency.value = freq;
+        g.gain.setValueAtTime(0, startT);
+        g.gain.linearRampToValueAtTime(gain, startT + 0.06);
+        g.gain.setValueAtTime(gain * 0.75, startT + dur - 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+        o.start(startT); o.stop(startT + dur);
+      }
+
+      // ── Timpani boom ──
+      function boom(startT, gain){
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(120, startT);
+        o.frequency.exponentialRampToValueAtTime(55, startT + 0.35);
+        g.gain.setValueAtTime(gain, startT);
+        g.gain.exponentialRampToValueAtTime(0.001, startT + 0.9);
+        o.start(startT); o.stop(startT + 1.0);
+        noise(0.08, gain * 0.4);
+      }
+
+      const t = c.currentTime;
+
+      // ── Phase 1: Rising swell (0.0s) — choir pads build on C major chord ──
+      pad(261.6, t+0.0, 3.8, 0.18);   // C3
+      pad(329.6, t+0.1, 3.7, 0.15);   // E3
+      pad(392.0, t+0.2, 3.6, 0.14);   // G3
+      pad(523.3, t+0.3, 3.5, 0.12);   // C4
+
+      // ── Phase 2: Bell cascade (0.5s) — sparkling celesta run upward ──
+      [523.3, 659.3, 784.0, 1046.5, 1318.5, 1568.0].forEach((f, i) => {
+        bell(f, t + 0.5 + i * 0.13, 0.22 - i * 0.02);
+      });
+
+      // ── Phase 3: Heroic horn hits (1.0s) — bold C major arpeggio ──
+      horn(261.6, t+1.0, 0.30, 0.28);  // C3
+      horn(329.6, t+1.3, 0.30, 0.26);  // E3
+      horn(392.0, t+1.6, 0.30, 0.26);  // G3
+      horn(523.3, t+1.9, 0.45, 0.30);  // C4 — hold
+      horn(659.3, t+2.1, 0.45, 0.28);  // E4 — hold
+      horn(784.0, t+2.3, 0.45, 0.28);  // G4 — hold
+
+      // ── Phase 4: Final grand chord + bells (2.5s) ──
+      [261.6, 329.6, 392.0, 523.3, 659.3, 784.0].forEach(f => {
+        pad(f, t+2.5, 1.8, 0.14);
+      });
+      [1046.5, 1318.5, 1568.0, 2093.0].forEach((f, i) => {
+        bell(f, t + 2.55 + i * 0.08, 0.28);
+      });
+
+      // ── Timpani: downbeat + final climax ──
+      boom(t + 0.0, 0.38);
+      boom(t + 1.0, 0.32);
+      boom(t + 2.5, 0.45);
+    }
+  };
+})();
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAME CONTENT DATA
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1160,6 +1551,10 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   document.getElementById('hud').style.display = id==='quiz' ? 'flex' : 'none';
+  // Dim kingdom overlay on all screens except welcome
+  const isWelcome = id === 'welcome';
+  document.getElementById('kingdomOverlay').classList.toggle('dimmed', !isWelcome);
+  document.body.classList.toggle('dimmed-bg', !isWelcome);
   window.scrollTo(0,0);
 }
 function updateHud(){
@@ -1201,7 +1596,7 @@ function buildMap(){
       ${done?`<div class="world-badge" style="background:rgba(${hexToRgb(w.color)},.12);border:1px solid ${w.color}55;color:${w.color}">✓ Done</div>`:''}
       ${!unlocked?'<div class="world-badge" style="color:var(--dim);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">🔒</div>':''}
     `;
-    if(unlocked) card.onclick=()=>openLearn(i);
+    if(unlocked) card.onclick=()=>{_AC.unlock();openLearn(i);};
     node.appendChild(card);
     if(i<WORLDS.length-1){
       const conn=document.createElement('div');
@@ -1232,7 +1627,8 @@ function openLearn(worldIdx){
   renderLearn(0);
   showScreen('learn');
 }
-function renderLearn(secIdx){
+function renderLearn(secIdx, playSound){
+  if(playSound) _AC.scroll();
   G.learnSectionIdx=secIdx;
   G.sectionsRead.add(secIdx);
   const w=WORLDS[G.worldIdx];
@@ -1245,7 +1641,7 @@ function renderLearn(secIdx){
   const tabsEl=document.getElementById('learnNavTabs');
   tabsEl.innerHTML=w.learnSections.map((s,i)=>{
     const cls='learn-tab'+(i===secIdx?' active':'')+(G.sectionsRead.has(i)&&i!==secIdx?' done':'');
-    return `<button class="${cls}" onclick="renderLearn(${i})">${s.tab}</button>`;
+    return `<button class="${cls}" onclick="renderLearn(${i}, true)">${s.tab}</button>`;
   }).join('');
   // Content
   document.getElementById('learnContent').innerHTML=w.learnSections[secIdx].html;
@@ -1318,7 +1714,7 @@ function renderQuestion(){
     const btn=document.createElement('button');
     btn.className='quiz-opt'; btn.id=`opt-${i}`;
     btn.innerHTML=`<div class="opt-letter" id="ol-${i}">${letters[i]}</div><div class="opt-text">${opt}</div>`;
-    btn.onclick=()=>selectAnswer(i);
+    btn.onclick=()=>{_AC.shield();selectAnswer(i);};
     opts.appendChild(btn);
   });
   startTimer();
@@ -1352,7 +1748,13 @@ function selectAnswer(idx){
   const correct=idx===q.answer;
   const letters=['A','B','C','D'];
   G.totalAnswered++;
-  if(correct)G.totalCorrect++;
+  // Only play sounds on real user clicks, not timer expiry (idx === -1)
+  if(idx !== -1){
+    if(correct){ G.totalCorrect++; _AC.victory(); } else { _AC.wrong(); }
+  } else {
+    // Timer ran out — count as wrong but no auto-sound
+    G.totalCorrect += 0;
+  }
   // Style options
   q.options.forEach((_,i)=>{
     const btn=document.getElementById(`opt-${i}`);
@@ -1488,6 +1890,8 @@ function showFinalResults(){
     return `<div class="ab-item ${earned?'earned':'unearned'}"><span>${b.icon}</span><span class="ab-name">${b.name}</span></div>`;
   }).join('');
   showScreen('final');
+  // Play triumph fanfare after a brief pause for screen transition
+  setTimeout(() => _AC.triumph(), 400);
 }
 function replayGame(){
   resetGame();
