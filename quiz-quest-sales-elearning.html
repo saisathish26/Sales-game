@@ -54,6 +54,17 @@ body.dimmed-bg #starsBg{opacity:0.25;}
   backdrop-filter:blur(12px);position:sticky;top:0;z-index:30;flex-shrink:0;
 }
 .hud-lives{display:flex;gap:4px;font-size:18px}
+.hud-lives span{display:inline-block;animation:hudHeartbeat 1.6s ease-in-out 1 both}
+.hud-lives span:nth-child(1){animation-delay:0s}
+.hud-lives span:nth-child(2){animation-delay:0.18s}
+.hud-lives span:nth-child(3){animation-delay:0.36s}
+@keyframes hudHeartbeat{
+  0%,100%{transform:scale(1)}
+  12%{transform:scale(1.35)}
+  24%{transform:scale(1)}
+  36%{transform:scale(1.2)}
+  48%{transform:scale(1)}
+}
 .hud-center{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
 .hud-xp{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);font-weight:700}
 
@@ -91,7 +102,38 @@ body.dimmed-bg #starsBg{opacity:0.25;}
   border-radius:12px;padding:11px 13px;text-align:left;
   backdrop-filter:blur(10px);box-shadow:0 2px 16px rgba(0,0,0,.45);
 }
-.feature-icon{font-size:18px;margin-bottom:4px}
+.feature-icon{font-size:18px;margin-bottom:4px;display:inline-block}
+/* 📖 Book — gentle float up/down */
+.feature-card:nth-child(1) .feature-icon{animation:iconFloat 3s ease-in-out infinite}
+/* 🔒 Lock — wiggle side-to-side */
+.feature-card:nth-child(2) .feature-icon{animation:iconWiggle 2.4s ease-in-out infinite}
+/* ❤️ Heart — heartbeat pump */
+.feature-card:nth-child(3) .feature-icon{animation:iconHeartbeat 1.4s ease-in-out infinite}
+/* 🏅 Medal — spin tilt */
+.feature-card:nth-child(4) .feature-icon{animation:iconSpin 3.5s ease-in-out infinite}
+@keyframes iconFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+@keyframes iconWiggle{
+  0%,100%{transform:rotate(0deg)}
+  20%{transform:rotate(-14deg)}
+  40%{transform:rotate(12deg)}
+  60%{transform:rotate(-8deg)}
+  80%{transform:rotate(6deg)}
+}
+@keyframes iconHeartbeat{
+  0%,100%{transform:scale(1)}
+  14%{transform:scale(1.3)}
+  28%{transform:scale(1)}
+  42%{transform:scale(1.18)}
+  56%{transform:scale(1)}
+}
+@keyframes iconSpin{
+  0%,100%{transform:rotateY(0deg)}
+  40%{transform:rotateY(180deg)}
+  60%{transform:rotateY(180deg)}
+}
 .feature-title{font-family:'Cinzel',serif;font-size:11px;color:var(--gold2);letter-spacing:1px;margin-bottom:2px}
 .feature-desc{color:#c4bfe0;font-size:11px;line-height:1.45}
 .btn-start{
@@ -809,6 +851,40 @@ const _AC = (()=>{
       boom(t + 0.0, 0.38);
       boom(t + 1.0, 0.32);
       boom(t + 2.5, 0.45);
+    },
+    // 💀 Defeat — dark descending toll + low rumble
+    defeat(){
+      const c = get();
+      const t = c.currentTime;
+      // Descending minor toll (three falling notes)
+      [[220,0.0],[185,0.28],[155,0.58]].forEach(([freq,delay])=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type='sine'; o.frequency.setValueAtTime(freq,t+delay);
+        o.frequency.exponentialRampToValueAtTime(freq*0.7,t+delay+0.55);
+        g.gain.setValueAtTime(0.32,t+delay);
+        g.gain.exponentialRampToValueAtTime(0.001,t+delay+0.9);
+        o.start(t+delay); o.stop(t+delay+1.0);
+      });
+      // Deep bass rumble underlay
+      const br=c.createOscillator(), bg=c.createGain();
+      br.connect(bg); bg.connect(c.destination);
+      br.type='sawtooth'; br.frequency.setValueAtTime(80,t);
+      br.frequency.exponentialRampToValueAtTime(38,t+1.2);
+      bg.gain.setValueAtTime(0,t);
+      bg.gain.linearRampToValueAtTime(0.28,t+0.1);
+      bg.gain.exponentialRampToValueAtTime(0.001,t+1.3);
+      br.start(t); br.stop(t+1.4);
+      // Dark noise whoosh
+      const buf=c.createBuffer(1,c.sampleRate*0.6,c.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+      const src=c.createBufferSource(); src.buffer=buf;
+      const flt=c.createBiquadFilter(); flt.type='lowpass'; flt.frequency.value=320;
+      const ng=c.createGain();
+      ng.gain.setValueAtTime(0.2,t); ng.gain.exponentialRampToValueAtTime(0.001,t+0.6);
+      src.connect(flt); flt.connect(ng); ng.connect(c.destination);
+      src.start(t); src.stop(t+0.65);
     },
     // 🎉 Level complete pop — festive burst: confetti pop + ascending sparkle + reward chime
     levelComplete(){
@@ -1735,6 +1811,7 @@ function advance(correct){
   if(G.lives<=0&&!correct){
     document.getElementById('goWorldName').textContent=w.title;
     showScreen('gameover');
+    setTimeout(()=>_AC.defeat(),120);
     return;
   }
   const next=G.qIdx+1;
