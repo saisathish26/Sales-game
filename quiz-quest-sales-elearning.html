@@ -122,6 +122,12 @@ body.dimmed-bg #starsBg{opacity:0.25;}
 }
 .world-card.unlocked{cursor:pointer}
 .world-card.unlocked:hover{transform:translateX(4px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.world-card.next-up{animation:cardGlow 2.4s ease-in-out infinite}
+.world-card.next-up:hover{animation:none}
+@keyframes cardGlow{
+  0%,100%{box-shadow:0 2px 16px rgba(0,0,0,.4),0 0 0px rgba(245,158,11,0)}
+  50%{box-shadow:0 2px 16px rgba(0,0,0,.4),0 0 18px rgba(245,158,11,.55),0 0 36px rgba(245,158,11,.2)}
+}
 .world-card.locked{opacity:.35;cursor:not-allowed}
 .world-card.completed{box-shadow:inset 0 0 0 1px rgba(245,158,11,.3)}
 .world-emoji{font-size:32px;flex-shrink:0}
@@ -235,7 +241,12 @@ body.dimmed-bg #starsBg{opacity:0.25;}
 }
 .btn-quiz:hover{transform:scale(1.04)}
 .btn-quiz:disabled{background:rgba(255,255,255,.1);color:var(--dim);box-shadow:none;cursor:not-allowed;transform:none}
-.learn-read-note{color:var(--muted);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px}
+.learn-read-note{color:var(--muted);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;animation:noteGlow 2s ease-in-out infinite}
+@keyframes noteGlow{
+  0%,100%{color:#9490b0;text-shadow:none}
+  50%{color:#fbbf24;text-shadow:0 0 8px rgba(245,158,11,.7),0 0 18px rgba(245,158,11,.35)}
+}
+.learn-read-note:has(span){animation:none;color:inherit;text-shadow:none}
 
 /* ══════════════════════════════════════
    QUIZ SCREEN
@@ -798,6 +809,43 @@ const _AC = (()=>{
       boom(t + 0.0, 0.38);
       boom(t + 1.0, 0.32);
       boom(t + 2.5, 0.45);
+    },
+    // 🎉 Level complete pop — festive burst: confetti pop + ascending sparkle + reward chime
+    levelComplete(){
+      const c = get();
+      const t = c.currentTime;
+      // ── Confetti pop: short noise burst ──
+      const buf = c.createBuffer(1, c.sampleRate * 0.08, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+      const src = c.createBufferSource(); src.buffer = buf;
+      const flt = c.createBiquadFilter(); flt.type='bandpass'; flt.frequency.value=1800; flt.Q.value=0.6;
+      const ng = c.createGain();
+      ng.gain.setValueAtTime(0.55, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t+0.08);
+      src.connect(flt); flt.connect(ng); ng.connect(c.destination);
+      src.start(t); src.stop(t+0.09);
+      // ── Ascending sparkle run ──
+      [523,659,784,988,1319].forEach((f,i)=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type='sine'; o.frequency.value=f;
+        const st=t+0.05+i*0.09;
+        g.gain.setValueAtTime(0.22,st);
+        g.gain.exponentialRampToValueAtTime(0.001,st+0.32);
+        o.start(st); o.stop(st+0.35);
+      });
+      // ── Warm reward chime chord (delayed) ──
+      [523,659,784].forEach((f,i)=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type='triangle'; o.frequency.value=f;
+        const st=t+0.60;
+        g.gain.setValueAtTime(0,st);
+        g.gain.linearRampToValueAtTime(0.18-i*0.03,st+0.06);
+        g.gain.exponentialRampToValueAtTime(0.001,st+0.9);
+        o.start(st); o.stop(st+1.0);
+      });
     }
   };
 })();
@@ -1466,13 +1514,16 @@ function buildMap(){
   document.getElementById('mapProgress').textContent=`${G.completedWorlds.length}/5`;
   const container=document.getElementById('mapWorlds');
   container.innerHTML='';
+  let nextUpAssigned=false;
   WORLDS.forEach((w,i)=>{
     const done=G.completedWorlds.includes(i);
     const unlocked=i===0||G.completedWorlds.includes(i-1);
+    const isNextUp=unlocked&&!done&&!nextUpAssigned;
+    if(isNextUp)nextUpAssigned=true;
     const ws=G.stars[i]||0;
     const node=document.createElement('div'); node.className='world-node';
     const card=document.createElement('button');
-    card.className='world-card'+(unlocked?' unlocked':'  locked')+(done?' completed':'');
+    card.className='world-card'+(unlocked?' unlocked':'  locked')+(done?' completed':'')+(isNextUp?' next-up':'');
     card.style.cssText=unlocked?`border-color:${w.color}55;`+(done?`box-shadow:0 0 20px ${w.color}22`:''):'';
     card.innerHTML=`
       <div class="world-emoji">${unlocked?w.emoji:'🔒'}</div>
@@ -1756,6 +1807,8 @@ function finishLevel(){
   btn.textContent=w.isBoss?'View Final Results 🏆':'Continue Journey →';
   btn.style.background=`linear-gradient(135deg,${w.color},${w.color}bb)`;
   showScreen('levelcomplete');
+  if(w.isBoss) setTimeout(()=>_AC.triumph(), 120);
+  else setTimeout(()=>_AC.levelComplete(), 120);
 }
 function levelContinue(){
   if(WORLDS[G.worldIdx].isBoss)showFinalResults();
@@ -1779,8 +1832,6 @@ function showFinalResults(){
     return `<div class="ab-item ${earned?'earned':'unearned'}"><span>${b.icon}</span><span class="ab-name">${b.name}</span></div>`;
   }).join('');
   showScreen('final');
-  // Play triumph fanfare after a brief pause for screen transition
-  setTimeout(() => _AC.triumph(), 400);
 }
 function replayGame(){
   resetGame();
