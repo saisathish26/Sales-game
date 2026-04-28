@@ -301,7 +301,7 @@ body.dimmed-bg #starsBg{opacity:0.25;}
 .badge-pill-name{font-family:'Cinzel',serif;font-size:11px;color:#d4a840}
 
 /* Legacy */
-.world-node{}.world-card{}.connector{}
+.Level-node{}.Level-card{}.connector{}
 
 /* ══════════════════════════════════════
    LEARN SCREEN
@@ -325,15 +325,15 @@ body.dimmed-bg #starsBg{opacity:0.25;}
 .learn-tab.done{border-color:var(--green);color:var(--green)}
 .learn-body{flex:1;overflow-y:auto;padding:20px 16px 100px;background:transparent}
 .learn-content{max-width:640px;margin:0 auto;animation:fadeUp .5s ease both}
-.learn-world-banner{
+.learn-Level-banner{
   border-radius:16px;padding:20px 22px;margin-bottom:24px;
   display:flex;align-items:center;gap:16px;
   backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.4);
 }
-.learn-world-emoji{font-size:44px;flex-shrink:0}
-.learn-world-info{}
-.learn-world-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-bottom:4px}
-.learn-world-title{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff;line-height:1.2}
+.learn-Level-emoji{font-size:44px;flex-shrink:0}
+.learn-Level-info{}
+.learn-Level-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-bottom:4px}
+.learn-Level-title{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff;line-height:1.2}
 .learn-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .learn-section-sub{color:#c0bcd8;font-size:13px;margin-bottom:18px;line-height:1.6}
 /* Content cards */
@@ -411,7 +411,7 @@ body.dimmed-bg #starsBg{opacity:0.25;}
 .quiz-inner{flex:1;display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px;max-width:560px;width:100%;margin:0 auto}
 .quiz-top{width:100%;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .quiz-counter{font-family:'Cinzel',serif;font-size:12px;color:var(--muted)}
-.quiz-world-tag{font-family:'Cinzel',serif;font-size:12px;font-weight:600}
+.quiz-Level-tag{font-family:'Cinzel',serif;font-size:12px;font-weight:600}
 .quiz-q-prog{width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:99px;margin-bottom:16px}
 .quiz-q-prog-fill{height:100%;border-radius:99px;transition:width .4s}
 .timer-wrap{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:16px}
@@ -627,7 +627,7 @@ body.dimmed-bg #starsBg{opacity:0.25;}
       <!-- SVG paths rendered by JS -->
       <svg id="mapPathsSvg" xmlns="http://www.w3.org/2000/svg"></svg>
       <!-- Nodes rendered by JS -->
-      <div id="mapWorlds"></div>
+      <div id="mapLevels"></div>
       <!-- Decorative scatter -->
     </div>
     <div class="map-badges-section" id="mapBadgesSection" style="display:none">
@@ -663,7 +663,7 @@ body.dimmed-bg #starsBg{opacity:0.25;}
   <div class="quiz-inner">
     <div class="quiz-top">
       <div class="quiz-counter" id="qCounter"></div>
-      <div class="quiz-world-tag" id="qWorldTag"></div>
+      <div class="quiz-Level-tag" id="qLevelTag"></div>
     </div>
     <div class="quiz-q-prog"><div class="quiz-q-prog-fill" id="qProgFill"></div></div>
     <div class="timer-wrap">
@@ -706,7 +706,7 @@ body.dimmed-bg #starsBg{opacity:0.25;}
     <div style="font-size:68px;margin-bottom:12px">💀</div>
     <div style="color:var(--red);font-family:'Cinzel',serif;font-size:26px;font-weight:700;margin-bottom:8px">Defeated!</div>
     <div style="color:#c4b0b0;font-family:'Cinzel',serif;font-size:13px;margin-bottom:6px">You ran out of lives in</div>
-    <div style="color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-bottom:12px" id="goWorldName"></div>
+    <div style="color:#fff;font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-bottom:12px" id="goLevelName"></div>
     <div style="color:#c4b8b8;font-size:14px;line-height:1.7;margin-bottom:28px;max-width:320px">
       The scrolls of knowledge await you. Study them again — victory belongs to the persistent!
     </div>
@@ -1049,7 +1049,7 @@ const _AC = (()=>{
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAME CONTENT DATA
 // ═══════════════════════════════════════════════════════════════════════════════
-const WORLDS = [
+const LevelS = [
 {
   id:1, emoji:"🏕️", color:"#f59e0b",
   mapLabel:"The Outpost", isBoss:false,
@@ -1059,11 +1059,11 @@ const WORLDS = [
     {
       tab:"What is Prospecting?",
       html:`
-        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.25)">
-          <div class="learn-world-emoji">🏕️</div>
-          <div class="learn-world-info">
-            <div class="learn-world-sub" style="color:#f59e0b">Level 1 · The Outpost</div>
-            <div class="learn-world-title">Prospecting & First Impressions</div>
+        <div class="learn-Level-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.25)">
+          <div class="learn-Level-emoji">🏕️</div>
+          <div class="learn-Level-info">
+            <div class="learn-Level-sub" style="color:#f59e0b">Level 1 · The Outpost</div>
+            <div class="learn-Level-title">Prospecting & First Impressions</div>
           </div>
         </div>
         <div class="learn-section-title">🎯 What is Sales Prospecting?</div>
@@ -1199,11 +1199,11 @@ const WORLDS = [
     {
       tab:"Why Discovery Matters",
       html:`
-        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.25)">
-          <div class="learn-world-emoji">🌲</div>
-          <div class="learn-world-info">
-            <div class="learn-world-sub" style="color:#10b981">Level 2 · The Whispering Forest</div>
-            <div class="learn-world-title">Needs Discovery & Active Listening</div>
+        <div class="learn-Level-banner" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.25)">
+          <div class="learn-Level-emoji">🌲</div>
+          <div class="learn-Level-info">
+            <div class="learn-Level-sub" style="color:#10b981">Level 2 · The Whispering Forest</div>
+            <div class="learn-Level-title">Needs Discovery & Active Listening</div>
           </div>
         </div>
         <div class="learn-section-title" style="color:#10b981">🌿 Why Discovery is the Heart of Selling</div>
@@ -1334,11 +1334,11 @@ const WORLDS = [
     {
       tab:"What are Objections?",
       html:`
-        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.25)">
-          <div class="learn-world-emoji">🏰</div>
-          <div class="learn-world-info">
-            <div class="learn-world-sub" style="color:#8b5cf6">Level 3 · Castle of Doubt</div>
-            <div class="learn-world-title">Objection Handling</div>
+        <div class="learn-Level-banner" style="background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.25)">
+          <div class="learn-Level-emoji">🏰</div>
+          <div class="learn-Level-info">
+            <div class="learn-Level-sub" style="color:#8b5cf6">Level 3 · Castle of Doubt</div>
+            <div class="learn-Level-title">Objection Handling</div>
           </div>
         </div>
         <div class="learn-section-title" style="color:#8b5cf6">🛡️ Understanding Sales Objections</div>
@@ -1397,7 +1397,7 @@ const WORLDS = [
       tab:"Proven Techniques",
       html:`
         <div class="learn-section-title">🎯 Proven Objection Handling Techniques</div>
-        <div class="learn-section-sub">These are battle-tested approaches used by top performers worldwide.</div>
+        <div class="learn-section-sub">These are battle-tested approaches used by top performers Levelwide.</div>
         <div class="technique-grid">
           <div class="technique-card">
             <div class="tc-header"><div class="tc-icon">🤲</div><div class="tc-name">Feel, Felt, Found</div></div>
@@ -1454,18 +1454,18 @@ const WORLDS = [
     {
       tab:"The Art of Closing",
       html:`
-        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.25)">
-          <div class="learn-world-emoji">🌋</div>
-          <div class="learn-world-info">
-            <div class="learn-world-sub" style="color:#ef4444">Level 4 · The Closing Volcano</div>
-            <div class="learn-world-title">Closing Strategies</div>
+        <div class="learn-Level-banner" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.25)">
+          <div class="learn-Level-emoji">🌋</div>
+          <div class="learn-Level-info">
+            <div class="learn-Level-sub" style="color:#ef4444">Level 4 · The Closing Volcano</div>
+            <div class="learn-Level-title">Closing Strategies</div>
           </div>
         </div>
         <div class="learn-section-title" style="color:#ef4444">🔥 What is a Sales Close?</div>
         <div class="learn-section-sub">Closing is the culmination of everything before it. If discovery and objection handling were done well, the close is almost a formality.</div>
         <div class="content-card">
           <div class="content-card-title" style="color:#ef4444">📌 The Philosophy of Closing</div>
-          <p>Classic sales wisdom said "ABC — Always Be Closing." Modern sales has evolved this to <strong>"Always Be Curious"</strong> — understanding the prospect's world so thoroughly that asking for the business feels natural, not pushy.</p>
+          <p>Classic sales wisdom said "ABC — Always Be Closing." Modern sales has evolved this to <strong>"Always Be Curious"</strong> — understanding the prospect's Level so thoroughly that asking for the business feels natural, not pushy.</p>
           <p>The close is not a trick. It is the <strong>logical next step</strong> after the prospect has confirmed they have a problem, agreed your solution fits, and has no unresolved objections.</p>
         </div>
         <div class="highlight-box tip">
@@ -1560,11 +1560,11 @@ const WORLDS = [
     {
       tab:"The Full Sales Cycle",
       html:`
-        <div class="learn-world-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.35)">
-          <div class="learn-world-emoji">🏆</div>
-          <div class="learn-world-info">
-            <div class="learn-world-sub" style="color:#f59e0b">Level 5 · The Final Arena</div>
-            <div class="learn-world-title">⚔️ The Complete Sales Cycle</div>
+        <div class="learn-Level-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.35)">
+          <div class="learn-Level-emoji">🏆</div>
+          <div class="learn-Level-info">
+            <div class="learn-Level-sub" style="color:#f59e0b">Level 5 · The Final Arena</div>
+            <div class="learn-Level-title">⚔️ The Complete Sales Cycle</div>
           </div>
         </div>
         <div class="learn-section-title">🗺️ End-to-End Sales Process</div>
@@ -1642,7 +1642,7 @@ const ALL_BADGES = [
   {id:"speed_demon",icon:"⚡",name:"Speed Demon",desc:"Answer a question in under 6 seconds"},
   {id:"flawless",icon:"💎",name:"Flawless Scholar",desc:"Complete a quiz without any wrong answers"},
   {id:"survivor",icon:"🛡️",name:"Survivor",desc:"Complete a quiz with only 1 life remaining"},
-  {id:"halfway",icon:"🌟",name:"Halfway Hero",desc:"Complete 3 worlds"},
+  {id:"halfway",icon:"🌟",name:"Halfway Hero",desc:"Complete 3 Levels"},
   {id:"champion",icon:"🏆",name:"Sales Champion",desc:"Defeat the Final Boss"},
 ];
 
@@ -1652,9 +1652,9 @@ const ALL_BADGES = [
 let G = {};
 function resetGame() {
   G = {
-    worldIdx:0, qIdx:0,
+    LevelIdx:0, qIdx:0,
     lives:3, totalXp:0, levelXp:0,
-    completedWorlds:[], stars:{}, badges:[],
+    completedLevels:[], stars:{}, badges:[],
     sessionCorrect:0, hintUsed:false, speedUnlocked:false, newBadges:[],
     totalAnswered:0, totalCorrect:0,
     learnSectionIdx:0, sectionsRead:new Set(),
@@ -1691,9 +1691,9 @@ function showScreen(id) {
   window.scrollTo(0,0);
 }
 function updateHud(){
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   document.getElementById('hudLives').innerHTML=[0,1,2].map(i=>`<span style="opacity:${i<G.lives?1:.18};filter:${i<G.lives?'drop-shadow(0 0 5px #ef4444)':'none'}">❤️</span>`).join('');
-  document.getElementById('hudCenter').textContent=`World ${w.id} · ${w.mapLabel}`;
+  document.getElementById('hudCenter').textContent=`Level ${w.id} · ${w.mapLabel}`;
   document.getElementById('hudXp').textContent=G.totalXp.toLocaleString()+' XP';
 }
 
@@ -1732,7 +1732,7 @@ const PATH_CURVES = [
 
 function buildMap(){
   document.getElementById('mapXp').textContent = G.totalXp.toLocaleString();
-  document.getElementById('mapProgress').textContent = `${G.completedWorlds.length}/5`;
+  document.getElementById('mapProgress').textContent = `${G.completedLevels.length}/5`;
 
   const canvas = document.getElementById('mapCanvas');
 
@@ -1746,13 +1746,13 @@ function buildMap(){
 
 
   // ── Render node divs ──
-  const container = document.getElementById('mapWorlds');
+  const container = document.getElementById('mapLevels');
   container.innerHTML = '';
   let nextUpAssigned = false;
 
-  WORLDS.forEach((w, i) => {
-    const done      = G.completedWorlds.includes(i);
-    const unlocked  = i === 0 || G.completedWorlds.includes(i-1);
+  LevelS.forEach((w, i) => {
+    const done      = G.completedLevels.includes(i);
+    const unlocked  = i === 0 || G.completedLevels.includes(i-1);
     const isNextUp  = unlocked && !done && !nextUpAssigned;
     if(isNextUp) nextUpAssigned = true;
     const ws = G.stars[i] || 0;
@@ -1814,8 +1814,8 @@ function hexToRgb(hex){
 // ═══════════════════════════════════════════════════════════════════════════════
 // LEARN SCREEN
 // ═══════════════════════════════════════════════════════════════════════════════
-function openLearn(worldIdx){
-  G.worldIdx=worldIdx;
+function openLearn(LevelIdx){
+  G.LevelIdx=LevelIdx;
   G.learnSectionIdx=0;
   G.sectionsRead=new Set();
   renderLearn(0);
@@ -1825,7 +1825,7 @@ function renderLearn(secIdx, playSound){
   if(playSound) _AC.scroll();
   G.learnSectionIdx=secIdx;
   G.sectionsRead.add(secIdx);
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   const total=w.learnSections.length;
   // Progress
   const pct=Math.round((G.sectionsRead.size/total)*100);
@@ -1856,7 +1856,7 @@ function renderLearn(secIdx, playSound){
   document.querySelector('.learn-body').scrollTop=0;
 }
 function startQuiz(){
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   G.qIdx=0;
   G.lives=3;
   G.sessionCorrect=0;
@@ -1873,22 +1873,22 @@ function startQuiz(){
 
 // Also allow going back to content review from game over
 function reviewContent(){
-  openLearn(G.worldIdx);
+  openLearn(G.LevelIdx);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // QUIZ
 // ═══════════════════════════════════════════════════════════════════════════════
 function renderQuestion(){
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   const q=w.questions[G.qIdx];
   G.eliminated=[];
   G.revealed=false;
   clearTimer();
   // Meta
   document.getElementById('qCounter').textContent=`Question ${G.qIdx+1} of ${w.questions.length}`;
-  document.getElementById('qWorldTag').textContent=`${w.emoji} ${w.mapLabel}`;
-  document.getElementById('qWorldTag').style.color=w.color;
+  document.getElementById('qLevelTag').textContent=`${w.emoji} ${w.mapLabel}`;
+  document.getElementById('qLevelTag').style.color=w.color;
   const pct=(G.qIdx/w.questions.length)*100;
   document.getElementById('qProgFill').style.cssText=`width:${pct}%;background:linear-gradient(90deg,${w.color},${w.color}77)`;
   // Content hint ref
@@ -1937,7 +1937,7 @@ function selectAnswer(idx){
   if(G.revealed)return;
   G.revealed=true;
   clearTimer();
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   const q=w.questions[G.qIdx];
   const correct=idx===q.answer;
   const letters=['A','B','C','D'];
@@ -1985,9 +1985,9 @@ function selectAnswer(idx){
   setTimeout(()=>advance(correct),2400);
 }
 function advance(correct){
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   if(G.lives<=0&&!correct){
-    document.getElementById('goWorldName').textContent=w.title;
+    document.getElementById('goLevelName').textContent=w.title;
     showScreen('gameover');
     setTimeout(()=>_AC.defeat(),120);
     return;
@@ -2002,7 +2002,7 @@ function advance(correct){
 }
 function useHint(){
   if(G.hintUsed||G.revealed)return;
-  const q=WORLDS[G.worldIdx].questions[G.qIdx];
+  const q=LevelS[G.LevelIdx].questions[G.qIdx];
   const wrong=[0,1,2,3].filter(i=>i!==q.answer&&!G.eliminated.includes(i));
   if(!wrong.length)return;
   const pick=wrong[Math.floor(Math.random()*wrong.length)];
@@ -2030,16 +2030,16 @@ function tryBadge(id){
   if(b&&!G.badges.find(x=>x.id===id)&&!G.newBadges.find(x=>x.id===id)){G.newBadges.push(b);}
 }
 function finishLevel(){
-  const w=WORLDS[G.worldIdx];
+  const w=LevelS[G.LevelIdx];
   const stars=calcStars(G.sessionCorrect,w.questions.length,G.lives);
-  if(!G.completedWorlds.includes(G.worldIdx))G.completedWorlds.push(G.worldIdx);
-  G.stars[G.worldIdx]=Math.max(G.stars[G.worldIdx]||0,stars);
+  if(!G.completedLevels.includes(G.LevelIdx))G.completedLevels.push(G.LevelIdx);
+  G.stars[G.LevelIdx]=Math.max(G.stars[G.LevelIdx]||0,stars);
   G.newBadges=[];
-  if(G.completedWorlds.length===1)tryBadge('first_victory');
+  if(G.completedLevels.length===1)tryBadge('first_victory');
   if(G.speedUnlocked)tryBadge('speed_demon');
   if(G.sessionCorrect===w.questions.length&&G.lives===3)tryBadge('flawless');
   if(G.lives===1)tryBadge('survivor');
-  if(G.completedWorlds.length>=3)tryBadge('halfway');
+  if(G.completedLevels.length>=3)tryBadge('halfway');
   if(w.isBoss)tryBadge('champion');
   G.newBadges.forEach(b=>G.badges.push(b));
   // Render
@@ -2066,7 +2066,7 @@ function finishLevel(){
   else setTimeout(()=>_AC.levelComplete(), 120);
 }
 function levelContinue(){
-  if(WORLDS[G.worldIdx].isBoss)showFinalResults();
+  if(LevelS[G.LevelIdx].isBoss)showFinalResults();
   else goMap();
 }
 
@@ -2079,7 +2079,7 @@ function showFinalResults(){
   const rank=G.totalXp>=4500?'🥇 Grandmaster Closer':G.totalXp>=2800?'🥈 Expert Salesperson':'🥉 Rising Sales Star';
   document.getElementById('finalRank').textContent=rank;
   document.getElementById('fXp').textContent=G.totalXp.toLocaleString();
-  document.getElementById('fStars').textContent=`${totalStars} / ${WORLDS.length*3}`;
+  document.getElementById('fStars').textContent=`${totalStars} / ${LevelS.length*3}`;
   document.getElementById('fAccuracy').textContent=`${acc}%`;
   document.getElementById('fBadges').textContent=`${G.badges.length} / ${ALL_BADGES.length}`;
   document.getElementById('allBadgesGrid').innerHTML=ALL_BADGES.map(b=>{
