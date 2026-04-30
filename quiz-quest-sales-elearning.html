@@ -522,7 +522,14 @@ body.dimmed-bg #starsBg{opacity:0.25;}
   background:rgba(12,9,36,0.80);border:1px solid rgba(245,158,11,.22);
   border-radius:20px;backdrop-filter:blur(14px);box-shadow:0 8px 40px rgba(0,0,0,.5);
 }
-.final-trophy{font-size:80px;filter:drop-shadow(0 0 22px var(--gold));margin-bottom:8px}
+.final-trophy{
+  font-size:80px;
+  margin-bottom:8px;
+  display:inline-block;
+  filter:drop-shadow(0 0 22px var(--gold));
+}
+/* ── CONFETTI ── */
+#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9999;}
 .final-title{
   font-family:'Cinzel',serif;font-size:clamp(22px,5vw,38px);font-weight:900;
   background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
@@ -1842,7 +1849,7 @@ function renderLearn(secIdx, playSound){
   } else {
     btn.style.background='';
     const remaining=total-G.sectionsRead.size;
-    note.textContent=`Read ${remaining} more section${remaining>1?'s':''} to unlock the quiz`;
+    note.textContent=`👆 Click the tabs above to read ${remaining} more section${remaining>1?'s':''} and unlock the quiz!`;
   }
   // scroll content to top
   document.querySelector('.learn-body').scrollTop=0;
@@ -2079,11 +2086,87 @@ function showFinalResults(){
     return `<div class="ab-item ${earned?'earned':'unearned'}"><span>${b.icon}</span><span class="ab-name">${b.name}</span></div>`;
   }).join('');
   showScreen('final');
+  setTimeout(launchConfetti, 120);
 }
 function replayGame(){
   resetGame();
   goMap();
 }
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFETTI ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+(function(){
+  const COLORS=['#f59e0b','#ef4444','#10b981','#3b82f6','#a855f7','#ec4899','#fbbf24','#34d399','#60a5fa','#fb923c'];
+  let parts=[], rafId=null, spawnCount=0, spawnTimer=null;
+
+  function makePart(cvs){
+    return {
+      x: Math.random()*cvs.width,
+      y: -12,
+      w: Math.random()*10+5,
+      h: Math.random()*5+3,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      vx: (Math.random()-0.5)*3,
+      vy: Math.random()*2+1.5,
+      angle: Math.random()*Math.PI*2,
+      spin: (Math.random()-0.5)*0.15,
+      gravity: 0.05,
+      opacity: 1,
+      isCircle: Math.random()<0.4
+    };
+  }
+
+  function tick(){
+    const cvs=document.getElementById('confettiCanvas');
+    if(!cvs){rafId=null;return;}
+    const ctx=cvs.getContext('2d');
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    parts.forEach(p=>{
+      p.vy+=p.gravity;
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.angle+=p.spin;
+      if(p.y>cvs.height*0.6) p.opacity=Math.max(0,p.opacity-0.018);
+      ctx.save();
+      ctx.globalAlpha=p.opacity;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle=p.color;
+      if(p.isCircle){ctx.beginPath();ctx.arc(0,0,p.w/2,0,Math.PI*2);ctx.fill();}
+      else{ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);}
+      ctx.restore();
+    });
+    parts=parts.filter(p=>p.opacity>0);
+    if(parts.length>0||spawnCount<250) rafId=requestAnimationFrame(tick);
+    else rafId=null;
+  }
+
+  window.launchConfetti=function(){
+    const cvs=document.getElementById('confettiCanvas');
+    if(!cvs) return;
+    // Size canvas to viewport
+    cvs.width=window.innerWidth;
+    cvs.height=window.innerHeight;
+    parts=[];
+    spawnCount=0;
+    if(rafId) cancelAnimationFrame(rafId);
+    if(spawnTimer) clearInterval(spawnTimer);
+    // Spawn particles gradually over 2.5s
+    spawnTimer=setInterval(function(){
+      if(!document.getElementById('screen-final').classList.contains('active')){
+        clearInterval(spawnTimer);parts=[];return;
+      }
+      const cvs=document.getElementById('confettiCanvas');
+      for(let i=0;i<6;i++) parts.push(makePart(cvs));
+      spawnCount+=6;
+      if(spawnCount>=250) clearInterval(spawnTimer);
+    },60);
+    tick();
+  };
+})();
 </script>
-</body>
+<canvas id="confettiCanvas"></canvas></body>
 </html>
