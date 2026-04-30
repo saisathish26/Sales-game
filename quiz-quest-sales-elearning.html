@@ -860,6 +860,11 @@ const _AC = (()=>{
       noise(0.18, 0.12);
       playTone(400, 'sine', 0.18, 0.08, 200);
     },
+    // 🖱️ Click — crisp UI tap
+    click(){
+      playTone(1200, 'sine', 0.04, 0.18, 1000);
+      playTone(600,  'square', 0.03, 0.08, 500);
+    },
     // 🔓 Unlock — rising shimmer
     unlock(){
       playTone(440, 'sine', 0.35, 0.22, 880);
@@ -1809,7 +1814,7 @@ function openLearn(LevelIdx){
   showScreen('learn');
 }
 function renderLearn(secIdx, playSound){
-  if(playSound) _AC.scroll();
+  if(playSound) _AC.click();
   G.learnSectionIdx=secIdx;
   G.sectionsRead.add(secIdx);
   const w=LevelS[G.LevelIdx];
